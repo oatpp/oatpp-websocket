@@ -32,7 +32,7 @@
 
 namespace oatpp { namespace websocket {
   
-class WebSocket {
+class WebSocket : public oatpp::base::Controllable {
 public:
   
   class Listener {
@@ -81,7 +81,7 @@ private:
 private:
   std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
   bool m_maskOutgoingMessages;
-  std::shared_ptr<Listener> m_listener;
+  mutable std::shared_ptr<Listener> m_listener;
   v_int32 m_lastOpcode;
   mutable bool m_listening;
 public:
@@ -97,11 +97,20 @@ public:
     , m_listening(false)
   {}
   
+  WebSocket(const WebSocket&) = delete;
+  WebSocket& operator=(const WebSocket&) = delete;
+  
+public:
+  
+  static std::shared_ptr<WebSocket> createShared(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, bool maskOutgoingMessages) {
+    return std::make_shared<WebSocket>(connection, maskOutgoingMessages);
+  }
+  
   std::shared_ptr<oatpp::data::stream::IOStream> getConnection() const {
     return m_connection;
   }
   
-  void setListener(const std::shared_ptr<Listener>& listener) {
+  void setListener(const std::shared_ptr<Listener>& listener) const {
     m_listener = listener;
   }
   

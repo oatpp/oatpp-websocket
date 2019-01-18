@@ -120,6 +120,11 @@ public:
     , m_listening(false)
   {}
   
+  AsyncWebSocket(const AsyncWebSocket&) = delete;
+  AsyncWebSocket& operator=(const AsyncWebSocket&) = delete;
+  
+public:
+  
   static std::shared_ptr<AsyncWebSocket> createShared(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, bool maskOutgoingMessages) {
     return std::make_shared<AsyncWebSocket>(connection, maskOutgoingMessages);
   }
