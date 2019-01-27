@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+# tmp folder of install-deps
+utility/install-deps/tmp/
+
+# idea
+.idea
+cmake-build-debug/
+
+# custom build
+build/

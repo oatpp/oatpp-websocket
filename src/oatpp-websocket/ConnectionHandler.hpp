@@ -26,7 +26,8 @@
 #define oatpp_websocket_ConnectionHandler_hpp
 
 #include "WebSocket.hpp"
-#include "oatpp/network/server/ConnectionHandler.cpp"
+
+#include "oatpp/network/server/ConnectionHandler.hpp"
 
 namespace oatpp { namespace websocket {
   
