@@ -25,6 +25,8 @@
 #include <iomanip>
 #include <fstream>
 
+#include <arpa/inet.h>
+
 namespace oatpp { namespace websocket {
 
 void SHA1::reset(uint32_t digest[], ChunkedBuffer& buffer, uint64_t &transforms) {
