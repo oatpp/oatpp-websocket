@@ -1,4 +1,4 @@
-# oatpp-websocket
+# oatpp-websocket [![Build Status](https://dev.azure.com/lganzzzo/lganzzzo/_apis/build/status/oatpp.oatpp-websocket?branchName=master)](https://dev.azure.com/lganzzzo/lganzzzo/_build/latest?definitionId=6?branchName=master)
 
 oatpp-websocket submodule.  
 It provides WebSocket functionality. Server/Client + Simple/Async APIs.
