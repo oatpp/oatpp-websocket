@@ -24,6 +24,8 @@
 
 #include "WebSocket.hpp"
 
+#include <arpa/inet.h>
+
 namespace oatpp { namespace websocket {
   
 bool WebSocket::checkForContinuation(const Frame::Header& frameHeader) {
