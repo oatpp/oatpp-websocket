@@ -40,7 +40,6 @@ public:
   class Listener {
   public:
     typedef oatpp::async::Action Action;
-    typedef os::io::Library::v_size v_size;
     typedef oatpp::websocket::AsyncWebSocket AsyncWebSocket;
   public:
     
@@ -76,7 +75,7 @@ public:
     virtual Action readMessage(oatpp::async::AbstractCoroutine* parentCoroutine,
                                const Action& actionOnReturn,
                                const std::shared_ptr<AsyncWebSocket>& socket,
-                               p_char8 data, v_size size) = 0;
+                               p_char8 data, data::v_io_size size) = 0;
     
   };
   

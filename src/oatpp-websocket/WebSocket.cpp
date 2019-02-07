@@ -123,11 +123,11 @@ void WebSocket::readPayload(const Frame::Header& frameHeader, oatpp::data::strea
   }
   
   v_char8 buffer[oatpp::data::buffer::IOBuffer::BUFFER_SIZE];
-  oatpp::os::io::Library::v_size progress = 0;
+  oatpp::data::v_io_size progress = 0;
   
   while (progress < frameHeader.payloadLength) {
     
-    oatpp::os::io::Library::v_size desiredSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
+    oatpp::data::v_io_size desiredSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
     if(desiredSize > frameHeader.payloadLength - progress) {
       desiredSize = frameHeader.payloadLength - progress;
     }
@@ -157,7 +157,7 @@ void WebSocket::readPayload(const Frame::Header& frameHeader, oatpp::data::strea
       
     }else { // if res == 0 then probably stream handles read() error incorrectly. trow.
       
-      if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY || res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+      if(res == oatpp::data::IOError::RETRY || res == oatpp::data::IOError::WAIT_RETRY) {
         continue;
       }
       throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::readPayload()]: Invalid connection state.");
@@ -292,7 +292,7 @@ bool WebSocket::sendOneFrame(bool fin, v_word8 opcode, const oatpp::String& mess
   Frame::Header frameHeader;
   if(message && message->getSize() > 0) {
     sendFrameHeader(frameHeader, fin, opcode, message->getSize());
-    oatpp::os::io::Library::v_size res;
+    oatpp::data::v_io_size res;
     if(frameHeader.hasMask) {
       v_char8 encoded[message->getSize()];
       for(v_int32 i = 0; i < message->getSize(); i ++) {

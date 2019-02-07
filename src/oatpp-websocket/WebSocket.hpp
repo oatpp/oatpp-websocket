@@ -37,7 +37,6 @@ public:
   
   class Listener {
   public:
-    typedef os::io::Library::v_size v_size;
     typedef oatpp::websocket::WebSocket WebSocket;
   public:
     
@@ -61,7 +60,7 @@ public:
      * When all data of message is read, readMessage is called again with size == 0 to
      * indicate end of the message
      */
-    virtual void readMessage(const WebSocket& socket, p_char8 data, v_size size) = 0;
+    virtual void readMessage(const WebSocket& socket, p_char8 data, data::v_io_size size) = 0;
     
   };
   

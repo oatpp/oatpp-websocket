@@ -222,7 +222,7 @@ SHA1::SHA1() {
 
 
 void SHA1::update(const oatpp::String &s) {
-  os::io::Library::v_size progress = 0;
+  data::v_io_size progress = 0;
   while (true) {
     
     auto readSize = BLOCK_BYTES - buffer.getSize();

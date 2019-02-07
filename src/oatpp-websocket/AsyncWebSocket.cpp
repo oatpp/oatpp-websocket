@@ -58,7 +58,7 @@ oatpp::async::Action AsyncWebSocket::readFrameHeaderAsync(oatpp::async::Abstract
     v_word32 m_messageLen3 [2];
   private:
     void* m_currData;
-    os::io::Library::v_size m_bytesToRead;
+    data::v_io_size m_bytesToRead;
   public:
     
     ReadFrameCoroutine(const std::shared_ptr<oatpp::data::stream::IOStream> connection,
@@ -148,7 +148,7 @@ oatpp::async::Action AsyncWebSocket::writeFrameHeaderAsync(oatpp::async::Abstrac
     v_word8 m_messageLengthScenario;
   private:
     const void* m_currData;
-    os::io::Library::v_size m_bytesToWrite;
+    data::v_io_size m_bytesToWrite;
   public:
     
     WriteFrameCoroutine(const std::shared_ptr<oatpp::data::stream::IOStream> connection,
@@ -221,10 +221,10 @@ oatpp::async::Action AsyncWebSocket::readPayloadAsync(oatpp::async::AbstractCoro
     std::shared_ptr<Listener> m_listener;
   private:
     p_char8 m_buffer;
-    oatpp::os::io::Library::v_size m_progress;
+    oatpp::data::v_io_size m_progress;
   private:
     void* m_currData;
-    os::io::Library::v_size m_bytesToRead;
+    data::v_io_size m_bytesToRead;
   public:
     ReadPayloadCoroutine(const std::shared_ptr<AsyncWebSocket>& socket,
                          const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
@@ -248,7 +248,7 @@ oatpp::async::Action AsyncWebSocket::readPayloadAsync(oatpp::async::AbstractCoro
       
       if(m_progress < m_frameHeader->payloadLength) {
         
-        oatpp::os::io::Library::v_size desiredSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
+        oatpp::data::v_io_size desiredSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
         if(desiredSize > m_frameHeader->payloadLength - m_progress) {
           desiredSize = m_frameHeader->payloadLength - m_progress;
         }
@@ -496,7 +496,7 @@ oatpp::async::Action AsyncWebSocket::sendOneFrameAsync(oatpp::async::AbstractCor
     p_char8 m_encoded = nullptr;
   private:
     const void* m_currData;
-    os::io::Library::v_size m_bytesToWrite;
+    data::v_io_size m_bytesToWrite;
   public:
     SendFrameCoroutine(const std::shared_ptr<AsyncWebSocket>& socket,
                        bool fin, v_word8 opcode, const oatpp::String& message)
