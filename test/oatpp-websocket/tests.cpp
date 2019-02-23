@@ -31,14 +31,13 @@ public:
   Test() : oatpp::test::UnitTest("MyTag")
   {}
 
-  bool onRun() override {
+  void onRun() override {
 
     oatpp::websocket::Handshaker::Headers headers;
     oatpp::websocket::Handshaker::clientsideHandshake(headers);
 
-    // TODO tests here
-
-    return true;
+    // TODO write correct  tests
+    
   }
 };
 
