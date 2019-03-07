@@ -31,7 +31,7 @@
 
 namespace oatpp { namespace websocket {
   
-class ConnectionHandler : public oatpp::base::Controllable, public network::server::ConnectionHandler {
+class ConnectionHandler : public oatpp::base::Countable, public network::server::ConnectionHandler {
 public:
   class SocketInstanceListener {
   public:

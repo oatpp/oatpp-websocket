@@ -32,7 +32,7 @@
 
 namespace oatpp { namespace websocket {
   
-class WebSocket : public oatpp::base::Controllable {
+class WebSocket : public oatpp::base::Countable {
 public:
   
   class Listener {

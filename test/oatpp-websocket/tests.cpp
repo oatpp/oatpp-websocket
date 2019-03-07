@@ -37,7 +37,7 @@ public:
     oatpp::websocket::Handshaker::clientsideHandshake(headers);
 
     // TODO write correct  tests
-    
+
   }
 };
 

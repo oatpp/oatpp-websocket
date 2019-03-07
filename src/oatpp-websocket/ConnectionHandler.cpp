@@ -30,7 +30,7 @@ namespace oatpp { namespace websocket {
   
 void ConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
   
-  class Task : public base::Controllable, public concurrency::Runnable {
+  class Task : public base::Countable, public concurrency::Runnable {
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::shared_ptr<SocketInstanceListener> m_listener;
     std::shared_ptr<WebSocket> m_socket;

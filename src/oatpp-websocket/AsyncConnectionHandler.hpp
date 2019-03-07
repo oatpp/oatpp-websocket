@@ -32,7 +32,9 @@
 
 namespace oatpp { namespace websocket {
   
-class AsyncConnectionHandler : public base::Controllable, public network::server::ConnectionHandler {
+class AsyncConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
+public:
+  static const v_int32 THREAD_NUM_DEFAULT;
 public:
   
   class SocketInstanceListener {
@@ -56,7 +58,7 @@ private:
   std::shared_ptr<SocketInstanceListener> m_listener;
 public:
   
-  AsyncConnectionHandler(v_int32 threadCount = OATPP_ASYNC_HTTP_CONNECTION_HANDLER_THREAD_NUM_DEFAULT)
+  AsyncConnectionHandler(v_int32 threadCount = THREAD_NUM_DEFAULT)
     : m_executor(std::make_shared<oatpp::async::Executor>(threadCount))
     , m_listener(nullptr)
   {
@@ -69,7 +71,7 @@ public:
   {}
 public:
   
-  static std::shared_ptr<AsyncConnectionHandler> createShared(v_int32 threadCount = OATPP_ASYNC_HTTP_CONNECTION_HANDLER_THREAD_NUM_DEFAULT){
+  static std::shared_ptr<AsyncConnectionHandler> createShared(v_int32 threadCount = THREAD_NUM_DEFAULT){
     return std::make_shared<AsyncConnectionHandler>(threadCount);
   }
   

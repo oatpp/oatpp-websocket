@@ -32,7 +32,7 @@
 
 namespace oatpp { namespace websocket {
   
-class AsyncWebSocket : public oatpp::base::Controllable {
+class AsyncWebSocket : public oatpp::base::Countable, public std::enable_shared_from_this<AsyncWebSocket> {
 public:
   typedef oatpp::async::Action Action;
 public:

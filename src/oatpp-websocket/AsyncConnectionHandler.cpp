@@ -25,7 +25,9 @@
 #include "AsyncConnectionHandler.hpp"
 
 namespace oatpp { namespace websocket {
-  
+
+const v_int32 AsyncConnectionHandler::THREAD_NUM_DEFAULT = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT;
+
 void AsyncConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
   
   class SocketCoroutine : public oatpp::async::Coroutine<SocketCoroutine> {

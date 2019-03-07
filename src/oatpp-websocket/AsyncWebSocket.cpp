@@ -320,7 +320,7 @@ oatpp::async::Action AsyncWebSocket::readPayloadAsync(oatpp::async::AbstractCoro
   }
   
   // Call Coroutine here
-  return parentCoroutine->startCoroutine<ReadPayloadCoroutine>(actionOnReturn, getSharedPtr<AsyncWebSocket>(), m_connection, frameHeader, shortMessageStream, m_listener);
+  return parentCoroutine->startCoroutine<ReadPayloadCoroutine>(actionOnReturn, shared_from_this(), m_connection, frameHeader, shortMessageStream, m_listener);
   
 }
   
@@ -419,7 +419,7 @@ oatpp::async::Action AsyncWebSocket::handleFrameAsync(oatpp::async::AbstractCoro
     
   };
   
-  return parentCoroutine->startCoroutine<HandleFrameCoroutine>(actionOnReturn, getSharedPtr<AsyncWebSocket>(), frameHeader);
+  return parentCoroutine->startCoroutine<HandleFrameCoroutine>(actionOnReturn, shared_from_this(), frameHeader);
   
 }
   
@@ -455,7 +455,7 @@ oatpp::async::Action AsyncWebSocket::listenAsync(oatpp::async::AbstractCoroutine
     
   };
   
-  return parentCoroutine->startCoroutine<ListenCoroutine>(actionOnReturn, getSharedPtr<AsyncWebSocket>());
+  return parentCoroutine->startCoroutine<ListenCoroutine>(actionOnReturn, shared_from_this());
   
 }
   
@@ -542,7 +542,7 @@ oatpp::async::Action AsyncWebSocket::sendOneFrameAsync(oatpp::async::AbstractCor
     
   };
   
-  return parentCoroutine->startCoroutine<SendFrameCoroutine>(actionOnReturn, getSharedPtr<AsyncWebSocket>(), fin, opcode, message);
+  return parentCoroutine->startCoroutine<SendFrameCoroutine>(actionOnReturn, shared_from_this(), fin, opcode, message);
   
 }
   
