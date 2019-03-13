@@ -17,3 +17,4 @@ More about oat++:
 ## Example
 
 Please see simple WebSocket server example here - https://github.com/lganzzzo/oatpp-example-websocket
+More details on this example here - https://github.com/oatpp/oatpp-websocket/issues/1
