@@ -13,3 +13,7 @@ More about oat++:
 |---|:---:|:---:|
 |Simple| + | + |
 |Async | + | + |
+
+## Example
+
+Please see simple WebSocket server example here - https://github.com/lganzzzo/oatpp-example-websocket
