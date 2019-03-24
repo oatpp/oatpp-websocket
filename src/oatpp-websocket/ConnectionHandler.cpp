@@ -23,14 +23,17 @@
  ***************************************************************************/
 
 #include "ConnectionHandler.hpp"
-
 #include "oatpp/core/concurrency/Thread.hpp"
 
 namespace oatpp { namespace websocket {
-  
+
+ConnectionHandler::ConnectionHandler()
+  : m_listener(nullptr)
+{}
+
 void ConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
   
-  class Task : public base::Countable, public concurrency::Runnable {
+  class Task : public base::Countable {
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::shared_ptr<SocketInstanceListener> m_listener;
     std::shared_ptr<WebSocket> m_socket;
@@ -53,23 +56,23 @@ void ConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stre
       }
     }
     
-    void run() override {
+    void run() {
       m_socket->listen();
     }
     
   };
   
   /* Create working thread */
-  concurrency::Thread thread(std::make_shared<Task>(connection, m_listener));
+  std::thread thread(&Task::run, Task(connection, m_listener));
   
   /* Get hardware concurrency -1 in order to have 1cpu free of workers. */
-  v_int32 concurrency = oatpp::concurrency::Thread::getHardwareConcurrency();
+  v_int32 concurrency = oatpp::concurrency::getHardwareConcurrency();
   if(concurrency > 1) {
     concurrency -= 1;
   }
   
   /* Set thread affinity group CPUs [0..cpu_count - 1]. Leave one cpu free of workers */
-  oatpp::concurrency::Thread::setThreadAffinityToCpuRange(thread.getStdThread()->native_handle(), 0, concurrency - 1 /* -1 because 0-based index */);
+  oatpp::concurrency::setThreadAffinityToCpuRange(thread.native_handle(), 0, concurrency - 1 /* -1 because 0-based index */);
   
   thread.detach();
   

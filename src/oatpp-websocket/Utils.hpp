@@ -29,13 +29,20 @@
 #include <random>
 
 namespace oatpp { namespace websocket {
-  
+
+/**
+ * Collection of utility methods.
+ */
 class Utils {
 private:
   /* Random used to generate message masks */
   static thread_local std::mt19937 RANDOM_GENERATOR;
   static thread_local std::uniform_int_distribution<size_t> RANDOM_DISTRIBUTION;
 public:
+  /**
+   * Generate random mask for frame.
+   * @param frameHeader - &id:oatpp::websocket::Frame::Header;.
+   */
   static void generateMaskForFrame(Frame::Header& frameHeader);
 };
   

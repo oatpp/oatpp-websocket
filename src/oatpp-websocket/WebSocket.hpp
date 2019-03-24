@@ -31,34 +31,53 @@
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 
 namespace oatpp { namespace websocket {
-  
+
+/**
+ * WebSocket.
+ */
 class WebSocket : public oatpp::base::Countable {
 public:
-  
+
+  /**
+   * Listener for websocket events.
+   */
   class Listener {
   public:
+    /**
+     * Convenience typedef fo &id:oatpp::websocket::WebSocket;.
+     */
     typedef oatpp::websocket::WebSocket WebSocket;
   public:
-    
+
     /**
      * Called when "ping" frame received
+     * @param socket - &id:oatpp::websocket::WebSocket;.
+     * @param message - message text; &id:oatpp::String;.
      */
     virtual void onPing(const WebSocket& socket, const oatpp::String& message) = 0;
-    
+
     /**
      * Called when "pong" frame received
+     * @param socket - &id:oatpp::websocket::WebSocket;.
+     * @param message - message text; &id:oatpp::String;.
      */
     virtual void onPong(const WebSocket& socket, const oatpp::String& message) = 0;
-    
+
     /**
      * Called when "close" frame received
+     * @param socket - &id:oatpp::websocket::WebSocket;.
+     * @param code - close frame message code.
+     * @param message - message text; &id:oatpp::String;.
      */
     virtual void onClose(const WebSocket& socket, v_word16 code, const oatpp::String& message) = 0;
-    
+
     /**
-     * Called when "text" or "binary" frame received.
+     * Called when "text" or "binary" frame received. <br>
      * When all data of message is read, readMessage is called again with size == 0 to
-     * indicate end of the message
+     * indicate end of the message.
+     * @param socket - &id:oatpp::websocket::WebSocket;.
+     * @param data - pointer to message data.
+     * @param size - data size.
      */
     virtual void readMessage(const WebSocket& socket, p_char8 data, data::v_io_size size) = 0;
     
@@ -84,100 +103,133 @@ private:
   v_int32 m_lastOpcode;
   mutable bool m_listening;
 public:
-  
+
   /**
-   * maskOutgoingMessages for servers should be false. For clients should be true
+   * Constructor.
+   * @param connection - &id:oatpp::data::stream::IOStream;.
+   * @param maskOutgoingMessages - for servers should be `false`. For clients should be `true`.
    */
-  WebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, bool maskOutgoingMessages)
-    : m_connection(connection)
-    , m_maskOutgoingMessages(maskOutgoingMessages)
-    , m_listener(nullptr)
-    , m_lastOpcode(-1)
-    , m_listening(false)
-  {}
-  
+  WebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, bool maskOutgoingMessages);
+
+  /**
+   * Deleted copy-constructor.
+   */
   WebSocket(const WebSocket&) = delete;
   WebSocket& operator=(const WebSocket&) = delete;
   
 public:
-  
+
+  /**
+   * Create shared WebSocket.
+   * @param connection - &id:oatpp::data::stream::IOStream;.
+   * @param maskOutgoingMessages - for servers should be `false`. For clients should be `true`.
+   * @return
+   */
   static std::shared_ptr<WebSocket> createShared(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, bool maskOutgoingMessages) {
     return std::make_shared<WebSocket>(connection, maskOutgoingMessages);
   }
-  
+
+  /**
+   * Get WebSocket connection.
+   * @return - &id:oatpp::data::stream::IOStream;.
+   */
   std::shared_ptr<oatpp::data::stream::IOStream> getConnection() const {
     return m_connection;
   }
-  
+
+  /**
+   * Set WebSocket events listener.
+   * @param listener - &l:WebSocket::Listener;.
+   */
   void setListener(const std::shared_ptr<Listener>& listener) const {
     m_listener = listener;
   }
-  
+
   /**
-   * Use this method if you know what you are doing.
-   * Read one frame from connection and call corresponding methods of listener.
-   * See WebSocket::setListener()
+   * Read one frame from connection and call corresponding methods of listener. <br>
+   * *Use this method if you know what you are doing.*
+   * @param frameHeader - &id:oatpp::websocket::Frame::Header;.
    */
   void iterateFrame(Frame::Header& frameHeader);
-  
+
   /**
    * Blocks until stopListening() is called or error occurred
    * Read incoming frames and call corresponding methods of listener.
-   * See WebSocket::setListener()
+   * See &l:WebSocket::setListener ();.
    */
   void listen();
   
   /**
-   * Break listen loop. See WebSocket::listen()
+   * Break listen loop. See &l:WebSocket::listen ();.
    */
   void stopListening() const;
-  
+
   /**
-   * Use this method if you know what you are doing.
-   * Send custom frame to peer.
+   * Send custom frame to peer. <br>
+   * *Use this method if you know what you are doing.*
+   * @param frameHeader - &id:oatpp::websocket::Frame::Header;.
    */
   void writeFrameHeader(const Frame::Header& frameHeader) const;
-  
+
   /**
-   * Use this method if you know what you are doing.
-   * Send default frame to peer with fin, opcode and messageSize set
+   * Send default frame to peer with fin, opcode and messageSize set. <br>
+   * *Use this method if you know what you are doing.*
+   * @param frameHeader - &id:oatpp::websocket::Frame::Header;.
+   * @param fin - FIN bit.
+   * @param opcode - operation code.
+   * @param messageSize - coming message size.
    */
   void sendFrameHeader(Frame::Header& frameHeader, bool fin, v_word8 opcode, v_int64 messageSize) const;
-  
+
   /**
-   * Send one frame message with custom fin and opcode
-   * return true on success, false on error.
-   * if false returned socket should be closed manually
+   * Send one frame message with custom fin and opcode.
+   * @param fin - FIN bit.
+   * @param opcode - operation code.
+   * @param message - message text. &id:oatpp::String;.
+   * @return - `true` on success, `false` on error.
+   * if `false` returned socket should be closed manually.
    */
   bool sendOneFrame(bool fin, v_word8 opcode, const oatpp::String& message) const;
-  
+
   /**
-   * throws on error and closes socket
+   * Send close frame.
+   * @param code - close message code.
+   * @param message - message text. &id:oatpp::String;.
+   * @throws - `runtime_error`.
    */
   void sendClose(v_word16 code, const oatpp::String& message) const;
-  
+
   /**
-   * throws on error and closes socket
+   * Send close frame without message.
+   * @throws - `runtime_error`.
    */
   void sendClose() const;
-  
+
   /**
-   * throws on error and closes socket
+   * Send ping frame.
+   * @param message - message text. &id:oatpp::String;.
+   * @throws - `runtime_error`.
    */
   void sendPing(const oatpp::String& message) const;
-  
+
   /**
-   * throws on error and closes socket
+   * Send pong message.
+   * @param message - message text. &id:oatpp::String;.
+   * @throws - `runtime_error`.
    */
   void sendPong(const oatpp::String& message) const;
-  
+
   /**
-   * throws on error and closes socket
+   * Send one-frame text message.
+   * @param message - message text. &id:oatpp::String;.
+   * @throws - `runtime_error`.
    */
   void sendOneFrameText(const oatpp::String& message) const;
-  
+
   /**
-   * throws on error and closes socket
+   * Send one-frame binary message.
+   * @param message - message text. &id:oatpp::String;.
+   * @throws - `runtime_error`.
    */
   void sendOneFrameBinary(const oatpp::String& message) const;
   

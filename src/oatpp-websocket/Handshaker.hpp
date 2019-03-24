@@ -35,43 +35,81 @@
 #include <random>
 
 namespace oatpp { namespace websocket {
-  
+
+/**
+ * Helper class providing WebSocket handshake functionality.
+ */
 class Handshaker {
 public:
   static const char* const MAGIC_UUID;
 public:
+  /**
+   * Handshake OK.
+   */
   static constexpr v_int32 STATUS_OK = 0;
-  static constexpr v_int32 STATUS_SERVER_ERROR = 1; // Server response-code != 101
-  static constexpr v_int32 STATUS_SERVER_WRONG_KEY = 2; // Server response "Sec-WebSocket-Accept" header is wrong
-  static constexpr v_int32 STATUS_UNKNOWN_PROTOCOL_SUGGESTED = 3; // Server's response contains unexpected headers values
+
+  /**
+   * Server response-code != 101.
+   */
+  static constexpr v_int32 STATUS_SERVER_ERROR = 1;
+
+  /**
+   * Server response "Sec-WebSocket-Accept" header is wrong.
+   */
+  static constexpr v_int32 STATUS_SERVER_WRONG_KEY = 2;
+
+  /**
+   * Server's response contains unexpected headers values
+   */
+  static constexpr v_int32 STATUS_UNKNOWN_PROTOCOL_SUGGESTED = 3;
 private:
   /* Random used to generate "Sec-WebSocket-Key" */
   static thread_local std::mt19937 RANDOM_GENERATOR;
   static thread_local std::uniform_int_distribution<size_t> RANDOM_DISTRIBUTION;
 public:
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::outgoing::Response;.
+   */
   typedef oatpp::web::protocol::http::outgoing::Response OutgoingResponse;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::incoming::Response;.
+   */
   typedef oatpp::web::protocol::http::incoming::Response IncomingResponse;
-  typedef oatpp::web::protocol::http::Protocol::Headers Headers;
+  typedef oatpp::web::protocol::http::Headers Headers;
   typedef oatpp::network::server::ConnectionHandler ConnectionHandler;
 private:
   static oatpp::String generateKey();
   static oatpp::String getHeader(const Headers& headers, const oatpp::data::share::StringKeyLabelCI_FAST& key);
 public:
-  
+
   /**
    * Prepare OutgoingResponse as for websocket-handshake based on requestHeaders.
+   * @param requestHeaders - request headers. &id:oatpp::web::protocol::http::Headers;.
+   * @param connectionUpgradeHandler - &id:oatpp::network::server::ConnectionHandler;.
+   * @return - `std::shared_ptr` to &id:oatpp::web::protocol::http::outgoing::Response;.
    */
   static std::shared_ptr<OutgoingResponse> serversideHandshake(const Headers& requestHeaders, const std::shared_ptr<ConnectionHandler>& connectionUpgradeHandler);
-  
+
   /**
-   * Prepare requestHeaders for clientside websocket-handshake request
+   * Set client request headers as for websocket-handshake.
+   * @param requestHeaders - headers map. &id:oatpp::web::protocol::http::Headers;.
    */
   static void clientsideHandshake(Headers& requestHeaders);
-  
+
   /**
    * Check if client's handshake corresponds to server's handshake
-   * returns one of values
-   * (STATUS_OK=0, STATUS_SERVER_ERROR=1, STATUS_SERVER_WRONG_KEY=2, STATUS_UNKNOWN_PROTOCOL_SUGGESTED=3);
+   * @param clientHandshakeHeaders - previously prepared headers which were sent to server.
+   * &id:oatpp::web::protocol::http::Headers;.
+   * See &l:Handshaker::clientsideHandshake ();.
+   * @param serverResponse - &id:oatpp::web::protocol::http::incoming::Response;.
+   * @return - one of:
+   * <ul>
+   *   <li>&l:Handshaker::STATUS_OK;</li>
+   *   <li>&l:Handshaker::STATUS_SERVER_ERROR;</li>
+   *   <li>&l:Handshaker::STATUS_SERVER_WRONG_KEY;</li>
+   *   <li>&l:Handshaker::STATUS_UNKNOWN_PROTOCOL_SUGGESTED;</li>
+   * </ul>
    */
   static v_int32 clientsideConfirmHandshake(const Headers& clientHandshakeHeaders, const std::shared_ptr<IncomingResponse>& serverResponse);
   

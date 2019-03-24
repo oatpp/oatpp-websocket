@@ -32,6 +32,9 @@
 
 namespace oatpp { namespace websocket {
 
+/**
+ * SHA1 implementation needed for websocket handshake key.
+ */
 class SHA1 {
 private:
   typedef oatpp::data::stream::ChunkedBuffer ChunkedBuffer;
@@ -54,14 +57,35 @@ private:
   oatpp::data::stream::ChunkedBuffer buffer;
   uint64_t transforms;
 public:
-  
+
+  /**
+   * Constructor.
+   */
   SHA1();
-  
+
+  /**
+   * Update digest.
+   * @param s - &id:oatpp::String;.
+   */
   void update(const oatpp::String& s);
+
+  /**
+   * Update digest from `std::istream`.
+   * @param is - `std::istream`.
+   */
   void update(std::istream& is);
-  
+
+  /**
+   * Add padding and return the message digest.
+   * @return - &id:oatpp::String;.
+   */
   oatpp::String finalBinary();
-  
+
+  /**
+   * Get digest of the file content.
+   * @param filename - name of the file. &id:oatpp::String;.
+   * @return - &id:oatpp::String;.
+   */
   static oatpp::String fromFile(const oatpp::String& filename);
 };
 

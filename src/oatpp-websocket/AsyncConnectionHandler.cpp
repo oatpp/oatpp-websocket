@@ -28,6 +28,30 @@ namespace oatpp { namespace websocket {
 
 const v_int32 AsyncConnectionHandler::THREAD_NUM_DEFAULT = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT;
 
+AsyncConnectionHandler::AsyncConnectionHandler(v_int32 threadCount)
+  : m_executor(std::make_shared<oatpp::async::Executor>(threadCount))
+  , m_listener(nullptr)
+{
+  m_executor->detach();
+}
+
+AsyncConnectionHandler::AsyncConnectionHandler(const std::shared_ptr<oatpp::async::Executor>& executor)
+  : m_executor(executor)
+  , m_listener(nullptr)
+{}
+
+std::shared_ptr<AsyncConnectionHandler> AsyncConnectionHandler::createShared(v_int32 threadCount){
+  return std::make_shared<AsyncConnectionHandler>(threadCount);
+}
+
+std::shared_ptr<AsyncConnectionHandler> AsyncConnectionHandler::createShared(const std::shared_ptr<oatpp::async::Executor>& executor){
+  return std::make_shared<AsyncConnectionHandler>(executor);
+}
+
+void AsyncConnectionHandler::setSocketInstanceListener(const std::shared_ptr<SocketInstanceListener>& listener) {
+  m_listener = listener;
+}
+
 void AsyncConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
   
   class SocketCoroutine : public oatpp::async::Coroutine<SocketCoroutine> {
@@ -62,6 +86,10 @@ void AsyncConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data:
   
   m_executor->execute<SocketCoroutine>(connection, m_listener);
   
+}
+
+void AsyncConnectionHandler::stop() {
+ m_executor->stop();
 }
   
 }}
