@@ -30,39 +30,68 @@
 #include "oatpp/network/server/ConnectionHandler.hpp"
 
 namespace oatpp { namespace websocket {
-  
+
+/**
+ * Websocket connection handler. Extends &id:oatpp::network::server::ConnectionHandler;. <br>
+ * Will create one thread per each connection to handle communication.
+ */
 class ConnectionHandler : public oatpp::base::Countable, public network::server::ConnectionHandler {
 public:
+
+  /**
+   * Listener for new websocket instances.
+   */
   class SocketInstanceListener {
   public:
+
     /**
-     *  Called when socket is created
+     * Called when socket is created
+     * @param socket - &id:oatpp::websocket::WebSocket;.
      */
     virtual void onAfterCreate(const WebSocket& socket) = 0;
-    
+
     /**
-     *  Called before socket instance is destroyed.
+     * Called before socket instance is destroyed.
+     * @param socket - &id:oatpp::websocket::WebSocket;.
      */
     virtual void onBeforeDestroy(const WebSocket& socket) = 0;
   };
 private:
   std::shared_ptr<SocketInstanceListener> m_listener;
 public:
-  ConnectionHandler()
-    : m_listener(nullptr)
-  {}
+
+  /**
+   * Constructor.
+   */
+  ConnectionHandler();
 public:
-  
+
+  /**
+   * Create shared ConnectionHandler.
+   * @return - `std::shared_ptr` to ConnectionHandler.
+   */
   static std::shared_ptr<ConnectionHandler> createShared(){
     return std::make_shared<ConnectionHandler>();
   }
-  
+
+  /**
+   * Set socket instance listener.
+   * @param listener - &l:ConnectionHandler::SocketInstanceListener;.
+   */
   void setSocketInstanceListener(const std::shared_ptr<SocketInstanceListener>& listener) {
     m_listener = listener;
   }
-  
+
+  /**
+   * Implementation of &id:oatpp::network::server::ConnectionHandler::handleConnection;.
+   * @param connection - &id:oatpp::data::stream::IOStream;.
+   */
   void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override;
 
+  /**
+   * Implementation of &id:oatpp::network::server::ConnectionHandler::stop;.
+   * Here does nothing.
+   */
   void stop() override {
     // DO NOTHING
   }

@@ -27,7 +27,15 @@
 #include <arpa/inet.h>
 
 namespace oatpp { namespace websocket {
-  
+
+WebSocket::WebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, bool maskOutgoingMessages)
+  : m_connection(connection)
+  , m_maskOutgoingMessages(maskOutgoingMessages)
+  , m_listener(nullptr)
+  , m_lastOpcode(-1)
+  , m_listening(false)
+{}
+
 bool WebSocket::checkForContinuation(const Frame::Header& frameHeader) {
   if(m_lastOpcode == Frame::OPCODE_TEXT || m_lastOpcode == Frame::OPCODE_BINARY) {
     return false;

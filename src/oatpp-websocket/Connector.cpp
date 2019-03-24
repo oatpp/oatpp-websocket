@@ -27,7 +27,12 @@
 #include "./Handshaker.hpp"
 
 namespace oatpp { namespace websocket {
-  
+
+Connector::Connector(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider)
+  : m_connectionProvider(connectionProvider)
+  , m_requestExecutor(connectionProvider)
+{}
+
 std::shared_ptr<Connector::Connection> Connector::connect(const oatpp::String& path) {
   
   auto connection = m_connectionProvider->getConnection();

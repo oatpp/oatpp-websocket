@@ -31,24 +31,37 @@
 #include "oatpp/network/server/ConnectionHandler.hpp"
 
 namespace oatpp { namespace websocket {
-  
+
+/**
+ * Asynchronous websocket connection handler.
+ * Extends &id:oatpp::base::Countable;, &id:oatpp::network::server::ConnectionHandler;.
+ */
 class AsyncConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
 public:
+  /**
+   * Default threads number for &id:oatpp::async::Executor;. <br>
+   * This value is set from `OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT` macro.
+   */
   static const v_int32 THREAD_NUM_DEFAULT;
 public:
-  
+
+  /**
+   * Listener for new websocket instances.
+   */
   class SocketInstanceListener {
   public:
-    
+
     /**
-     *  Called when socket is created
-     *  This method should not block
+     * Called when socket is created. <br>
+     * **This method should not block**.
+     * @param socket - &id:oatpp::websocket::AsyncWebSocket;.
      */
     virtual void onAfterCreate_NonBlocking(const std::shared_ptr<AsyncWebSocket>& socket) = 0;
-    
+
     /**
-     *  Called before socket instance is destroyed.
-     *  This method should not block
+     * Called before socket instance is destroyed. <br>
+     * **This method should not block**.
+     * @param socket - &id:oatpp::websocket::AsyncWebSocket;.
      */
     virtual void onBeforeDestroy_NonBlocking(const std::shared_ptr<AsyncWebSocket>& socket) = 0;
   };
@@ -57,37 +70,52 @@ private:
   std::shared_ptr<oatpp::async::Executor> m_executor;
   std::shared_ptr<SocketInstanceListener> m_listener;
 public:
-  
-  AsyncConnectionHandler(v_int32 threadCount = THREAD_NUM_DEFAULT)
-    : m_executor(std::make_shared<oatpp::async::Executor>(threadCount))
-    , m_listener(nullptr)
-  {
-    m_executor->detach();
-  }
-  
-  AsyncConnectionHandler(const std::shared_ptr<oatpp::async::Executor>& executor)
-    : m_executor(executor)
-    , m_listener(nullptr)
-  {}
+
+  /**
+   * Constructor. With threadCount.
+   * Will create &id:oatpp::async::Executor;.
+   * @param threadCount - number of threads for &id:oatpp::async::Executor;.
+   */
+  AsyncConnectionHandler(v_int32 threadCount = THREAD_NUM_DEFAULT);
+
+  /**
+   * Constructor. With &id:oatpp::async::Executor;.
+   * @param executor - &id:oatpp::async::Executor;.
+   */
+  AsyncConnectionHandler(const std::shared_ptr<oatpp::async::Executor>& executor);
+
 public:
-  
-  static std::shared_ptr<AsyncConnectionHandler> createShared(v_int32 threadCount = THREAD_NUM_DEFAULT){
-    return std::make_shared<AsyncConnectionHandler>(threadCount);
-  }
-  
-  static std::shared_ptr<AsyncConnectionHandler> createShared(const std::shared_ptr<oatpp::async::Executor>& executor){
-    return std::make_shared<AsyncConnectionHandler>(executor);
-  }
-  
-  void setSocketInstanceListener(const std::shared_ptr<SocketInstanceListener>& listener) {
-    m_listener = listener;
-  }
-  
+
+  /**
+   * Create shared AsyncConnectionHandler with threadCount.
+   * @param threadCount - number of threads for &id:oatpp::async::Executor;.
+   * @return - `std::shared_ptr` to AsyncConnectionHandler.
+   */
+  static std::shared_ptr<AsyncConnectionHandler> createShared(v_int32 threadCount = THREAD_NUM_DEFAULT);
+
+  /**
+   * Create shared AsyncConnectionHandler with &id:oatpp::async::Executor;.
+   * @param executor - &id:oatpp::async::Executor;.
+   * @return - `std::shared_ptr` to AsyncConnectionHandler.
+   */
+  static std::shared_ptr<AsyncConnectionHandler> createShared(const std::shared_ptr<oatpp::async::Executor>& executor);
+
+  /**
+   * Set &l:AsyncConnectionHandler::SocketInstanceListener;.
+   * @param listener - &l:AsyncConnectionHandler::SocketInstanceListener;.
+   */
+  void setSocketInstanceListener(const std::shared_ptr<SocketInstanceListener>& listener);
+
+  /**
+   * Implementation of &id:oatpp::network::server::ConnectionHandler::handleConnection;.
+   * @param connection - &id:oatpp::data::stream::IOStream;.
+   */
   void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override;
-  
-  void stop() override {
-    m_executor->stop();
-  }
+
+  /**
+   * Will call &id:oatpp::async::Executor::stop;.
+   */
+  void stop() override;
   
 };
   
