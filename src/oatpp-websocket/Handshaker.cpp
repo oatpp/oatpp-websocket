@@ -61,31 +61,41 @@ std::shared_ptr<Handshaker::OutgoingResponse> Handshaker::serversideHandshake(co
   auto connection = getHeader(requestHeaders, oatpp::web::protocol::http::Header::CONNECTION);
   auto key = getHeader(requestHeaders, "Sec-WebSocket-Key");
   
-  if(upgrade && connection && version && key && key->getSize() > 0 &&
-     upgrade == "websocket" && connection == oatpp::web::protocol::http::Header::Value::CONNECTION_UPGRADE)
-  {
-    
-    if(version == "13") {
-     
-      auto websocketKey = key + MAGIC_UUID;
-      SHA1 sha1;
-      sha1.update(websocketKey);
-      auto websocketAccept = oatpp::encoding::Base64::encode(sha1.finalBinary());
-      
-      auto response = OutgoingResponse::createShared(oatpp::web::protocol::http::Status::CODE_101, nullptr);
-      
-      response->putHeader(oatpp::web::protocol::http::Header::UPGRADE, "websocket");
-      response->putHeader(oatpp::web::protocol::http::Header::CONNECTION, oatpp::web::protocol::http::Header::Value::CONNECTION_UPGRADE);
-      response->putHeader("Sec-WebSocket-Accept", websocketAccept);
-      response->setConnectionUpgradeHandler(connectionUpgradeHandler);
-      
-      return response;
-      
+  if(upgrade && connection && version && key && key->getSize() > 0 && upgrade == "websocket") {
+
+    auto connectionValueSet = oatpp::web::protocol::http::Parser::parseHeaderValueSet(connection, ',');
+
+    if(connectionValueSet.find(oatpp::web::protocol::http::Header::Value::CONNECTION_UPGRADE) != connectionValueSet.end()) {
+
+      if (version == "13") {
+
+        auto websocketKey = key + MAGIC_UUID;
+        SHA1 sha1;
+        sha1.update(websocketKey);
+        auto websocketAccept = oatpp::encoding::Base64::encode(sha1.finalBinary());
+
+        auto response = OutgoingResponse::createShared(oatpp::web::protocol::http::Status::CODE_101, nullptr);
+
+        response->putHeader(oatpp::web::protocol::http::Header::UPGRADE, "websocket");
+        response->putHeader(oatpp::web::protocol::http::Header::CONNECTION,
+                            oatpp::web::protocol::http::Header::Value::CONNECTION_UPGRADE);
+        response->putHeader("Sec-WebSocket-Accept", websocketAccept);
+        response->setConnectionUpgradeHandler(connectionUpgradeHandler);
+
+        return response;
+
+      }
+
+      throw oatpp::web::protocol::http::HttpError(oatpp::web::protocol::http::Status::CODE_400,
+                                                  "Websocket upgrade unsupported protocol version. Supported websocket versions: [13]");
+
     }
+
+    throw oatpp::web::protocol::http::HttpError(oatpp::web::protocol::http::Status::CODE_400, "Websocket upgrade 'Upgrade' header missing");
     
   }
   
-  return nullptr;
+  throw oatpp::web::protocol::http::HttpError(oatpp::web::protocol::http::Status::CODE_400, "Websocket upgrade invalid headers.");
   
 }
   
