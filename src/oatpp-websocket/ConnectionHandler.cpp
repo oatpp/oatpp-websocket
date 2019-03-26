@@ -38,7 +38,9 @@ void ConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stre
     std::shared_ptr<SocketInstanceListener> m_listener;
     std::shared_ptr<WebSocket> m_socket;
   public:
-    
+
+    Task(const Task&) = delete;
+
     Task(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
          const std::shared_ptr<SocketInstanceListener>& listener)
       : m_connection(connection)
@@ -49,6 +51,12 @@ void ConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stre
         m_listener->onAfterCreate(*m_socket);
       }
     }
+
+    Task(Task&& other)
+      : m_connection(std::move(other.m_connection))
+      , m_listener(std::move(other.m_listener))
+      , m_socket(std::move(other.m_socket))
+    {}
     
     ~Task() {
       if(m_listener){
@@ -58,6 +66,13 @@ void ConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stre
     
     void run() {
       m_socket->listen();
+    }
+
+    Task& operator = (Task&& other){
+      m_connection = std::move(other.m_connection);
+      m_listener = std::move(other.m_listener);
+      m_socket = std::move(other.m_socket);
+      return *this;
     }
     
   };
