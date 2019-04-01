@@ -69,7 +69,7 @@ public:
      * *To ignore this event return actionOnReturn.*
      */
     virtual Action onPing(oatpp::async::AbstractCoroutine* parentCoroutine,
-                          const Action& actionOnReturn,
+                          Action&& actionOnReturn,
                           const std::shared_ptr<AsyncWebSocket>& socket,
                           const oatpp::String& message) = 0;
 
@@ -83,7 +83,7 @@ public:
      * *To ignore this event return actionOnReturn.*
      */
     virtual Action onPong(oatpp::async::AbstractCoroutine* parentCoroutine,
-                          const Action& actionOnReturn,
+                          Action&& actionOnReturn,
                           const std::shared_ptr<AsyncWebSocket>& socket,
                           const oatpp::String& message) = 0;
 
@@ -98,7 +98,7 @@ public:
      * *To ignore this event return actionOnReturn.*
      */
     virtual Action onClose(oatpp::async::AbstractCoroutine* parentCoroutine,
-                           const Action& actionOnReturn,
+                           Action&& actionOnReturn,
                            const std::shared_ptr<AsyncWebSocket>& socket,
                            v_word16 code, const oatpp::String& message) = 0;
 
@@ -115,7 +115,7 @@ public:
      * *To ignore this event return actionOnReturn.*
      */
     virtual Action readMessage(oatpp::async::AbstractCoroutine* parentCoroutine,
-                               const Action& actionOnReturn,
+                               Action&& actionOnReturn,
                                const std::shared_ptr<AsyncWebSocket>& socket,
                                p_char8 data, data::v_io_size size) = 0;
     
@@ -126,7 +126,7 @@ private:
   bool checkForContinuation(const Frame::Header& frameHeader);
   
   Action readFrameHeaderAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                              const Action& actionOnReturn,
+                              Action&& actionOnReturn,
                               const std::shared_ptr<Frame::Header>& frameHeader);
   
   /*
@@ -134,12 +134,12 @@ private:
    * if(shortMessageStream) - read message to shortMessageStream. Don't call listener
    */
   Action readPayloadAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                          const Action& actionOnReturn,
+                          Action&& actionOnReturn,
                           const std::shared_ptr<Frame::Header>& frameHeader,
                           const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& shortMessageStream);
   
   Action handleFrameAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                          const Action& actionOnReturn,
+                          Action&& actionOnReturn,
                           const std::shared_ptr<Frame::Header>& frameHeader);
   
 private:
@@ -199,7 +199,7 @@ public:
    * @param actionOnReturn - action to perform when done listening. &id:oatpp::async::Action;.
    * @return - &id:oatpp::async::Action;.
    */
-  Action listenAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn);
+  Action listenAsync(oatpp::async::AbstractCoroutine* parentCoroutine, Action&& actionOnReturn);
 
   /**
  * Use this method if you know what you are doing.
@@ -215,7 +215,7 @@ public:
    * @return - &id:oatpp::async::Action;.
    */
   Action writeFrameHeaderAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                               const Action& actionOnReturn,
+                               Action&& actionOnReturn,
                                const std::shared_ptr<Frame::Header>& frameHeader);
 
   /**
@@ -230,7 +230,7 @@ public:
    * @return - &id:oatpp::async::Action;.
    */
   Action sendFrameHeaderAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                              const Action& actionOnReturn,
+                              Action&& actionOnReturn,
                               const std::shared_ptr<Frame::Header>& frameHeader,
                               bool fin, v_word8 opcode, v_int64 messageSize);
 
@@ -244,7 +244,7 @@ public:
    * @return - &id:oatpp::async::Action;.
    */
   Action sendOneFrameAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                           const Action& actionOnReturn,
+                           Action&& actionOnReturn,
                            bool fin, v_word8 opcode, const oatpp::String& message);
 
   /**
@@ -255,7 +255,7 @@ public:
    * @param message - message text. &id:oatpp::String;.
    * @return - &id:oatpp::async::Action;.
    */
-  Action sendCloseAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, v_word16 code, const oatpp::String& message);
+  Action sendCloseAsync(oatpp::async::AbstractCoroutine* parentCoroutine, Action&& actionOnReturn, v_word16 code, const oatpp::String& message);
 
   /**
    * Send close frame without message.
@@ -263,7 +263,7 @@ public:
    * @param actionOnReturn - action to perform once done. &id:oatpp::async::Action;.
    * @return - &id:oatpp::async::Action;.
    */
-  Action sendCloseAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn);
+  Action sendCloseAsync(oatpp::async::AbstractCoroutine* parentCoroutine, Action&& actionOnReturn);
 
   /**
    * Send ping frame.
@@ -272,7 +272,7 @@ public:
    * @param message - message text. &id:oatpp::String;.
    * @return - &id:oatpp::async::Action;.
    */
-  Action sendPingAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, const oatpp::String& message);
+  Action sendPingAsync(oatpp::async::AbstractCoroutine* parentCoroutine, Action&& actionOnReturn, const oatpp::String& message);
 
   /**
    * Send pong frame.
@@ -281,7 +281,7 @@ public:
    * @param message - message text. &id:oatpp::String;.
    * @return - &id:oatpp::async::Action;.
    */
-  Action sendPongAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, const oatpp::String& message);
+  Action sendPongAsync(oatpp::async::AbstractCoroutine* parentCoroutine, Action&& actionOnReturn, const oatpp::String& message);
 
   /**
    * Send one frame text message.
@@ -290,7 +290,7 @@ public:
    * @param message - message text. &id:oatpp::String;.
    * @return - &id:oatpp::async::Action;.
    */
-  Action sendOneFrameTextAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, const oatpp::String& message);
+  Action sendOneFrameTextAsync(oatpp::async::AbstractCoroutine* parentCoroutine, Action&& actionOnReturn, const oatpp::String& message);
 
   /**
    * Send one frame binary message.
@@ -299,7 +299,7 @@ public:
    * @param message - message text. &id:oatpp::String;.
    * @return - &id:oatpp::async::Action;.
    */
-  Action sendOneFrameBinaryAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, const oatpp::String& message);
+  Action sendOneFrameBinaryAsync(oatpp::async::AbstractCoroutine* parentCoroutine, Action&& actionOnReturn, const oatpp::String& message);
   
 };
   
