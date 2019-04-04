@@ -6,7 +6,7 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi, <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,14 @@ public:
    * Convenience typedef for &id:oatpp::async::Action;.
    */
   typedef oatpp::async::Action Action;
-  typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<Connection>&);
+
+  /*
+   * Convenience typedef for &id:oatpp::async::CoroutineStarterForResult;.
+   */
+  template <typename ...Args>
+  using
+  CoroutineStarterForResult = typename oatpp::async::CoroutineStarterForResult<Args...>;
+
 private:
   std::shared_ptr<oatpp::network::ClientConnectionProvider> m_connectionProvider;
   oatpp::web::client::HttpRequestExecutor m_requestExecutor;
@@ -76,12 +83,10 @@ public:
   /**
    * Connect to server, do websocket-handshake and return Connection which can be then passed to WebSocket constructor. <br>
    * **(Async call)**
-   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-   * @param callback - pointer to callback function.
    * @param path - path to websocket endpoint.
    * @return - &id:oatpp::async::Action;.
    */
-  Action connectAsync(oatpp::async::AbstractCoroutine* parentCoroutine, AsyncCallback callback, const oatpp::String& path);
+  CoroutineStarterForResult<const std::shared_ptr<Connection>&> connectAsync(const oatpp::String& path);
   
 };
   

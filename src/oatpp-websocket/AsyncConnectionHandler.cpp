@@ -6,7 +6,7 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi, <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ void AsyncConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data:
       if(m_listener) {
         m_listener->onAfterCreate_NonBlocking(m_socket);
       }
-      return m_socket->listenAsync(this, finish());
+      return m_socket->listenAsync().next(finish());
     }
     
   };

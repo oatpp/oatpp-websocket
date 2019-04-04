@@ -6,7 +6,7 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi, <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,10 +50,7 @@ bool AsyncWebSocket::checkForContinuation(const Frame::Header& frameHeader) {
   return true;
 }
   
-oatpp::async::Action AsyncWebSocket::readFrameHeaderAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                          Action&& actionOnReturn,
-                                                          const std::shared_ptr<Frame::Header>& frameHeader)
-{
+oatpp::async::CoroutineStarter AsyncWebSocket::readFrameHeaderAsync(const std::shared_ptr<Frame::Header>& frameHeader) {
   
   class ReadFrameCoroutine : public oatpp::async::Coroutine<ReadFrameCoroutine> {
   private:
@@ -135,13 +132,11 @@ oatpp::async::Action AsyncWebSocket::readFrameHeaderAsync(oatpp::async::Abstract
     
   };
   
-  return parentCoroutine->startCoroutine<ReadFrameCoroutine>(std::forward<Action>(actionOnReturn), m_connection, frameHeader);
+  return ReadFrameCoroutine::start(m_connection, frameHeader);
   
 }
   
-oatpp::async::Action AsyncWebSocket::writeFrameHeaderAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                           Action&& actionOnReturn,
-                                                           const std::shared_ptr<Frame::Header>& frameHeader)
+oatpp::async::CoroutineStarter AsyncWebSocket::writeFrameHeaderAsync(const std::shared_ptr<Frame::Header>& frameHeader)
 {
   
   class WriteFrameCoroutine : public oatpp::async::Coroutine<WriteFrameCoroutine> {
@@ -210,14 +205,12 @@ oatpp::async::Action AsyncWebSocket::writeFrameHeaderAsync(oatpp::async::Abstrac
     
   };
   
-  return parentCoroutine->startCoroutine<WriteFrameCoroutine>(std::forward<Action>(actionOnReturn), m_connection, frameHeader);
+  return WriteFrameCoroutine::start(m_connection, frameHeader);
   
 }
-  
-oatpp::async::Action AsyncWebSocket::readPayloadAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                      Action&& actionOnReturn,
-                                                      const std::shared_ptr<Frame::Header>& frameHeader,
-                                                      const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& shortMessageStream)
+
+oatpp::async::CoroutineStarter AsyncWebSocket::readPayloadAsync(const std::shared_ptr<Frame::Header>& frameHeader,
+                                                                const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& shortMessageStream)
 {
   
   class ReadPayloadCoroutine : public oatpp::async::Coroutine<ReadPayloadCoroutine> {
@@ -268,7 +261,7 @@ oatpp::async::Action AsyncWebSocket::readPayloadAsync(oatpp::async::AbstractCoro
       }
       
       if(m_shortMessageStream == nullptr && m_frameHeader->fin && m_listener) {
-        return m_listener->readMessage(this, finish(), m_socket, nullptr, 0);
+        return m_listener->readMessage(m_socket, nullptr, 0).next(finish());
       }
       
       return finish();
@@ -297,7 +290,7 @@ oatpp::async::Action AsyncWebSocket::readPayloadAsync(oatpp::async::AbstractCoro
             /* this is RAM stream. Non-blocking call */
             m_shortMessageStream->write(decoded, readResult);
           } else if(m_listener) {
-            return m_listener->readMessage(this, yieldTo(&ReadPayloadCoroutine::act), m_socket, decoded, readResult);
+            return m_listener->readMessage(m_socket, decoded, readResult).next(yieldTo(&ReadPayloadCoroutine::act));
           }
           
         } else {
@@ -308,7 +301,7 @@ oatpp::async::Action AsyncWebSocket::readPayloadAsync(oatpp::async::AbstractCoro
             /* this is RAM stream. Non-blocking call */
             m_shortMessageStream->write(m_buffer, readResult);
           } else if(m_listener) {
-            return m_listener->readMessage(this, yieldTo(&ReadPayloadCoroutine::act), m_socket, m_buffer, readResult);
+            return m_listener->readMessage(m_socket, m_buffer, readResult).next(yieldTo(&ReadPayloadCoroutine::act));
           }
           
         }
@@ -326,16 +319,12 @@ oatpp::async::Action AsyncWebSocket::readPayloadAsync(oatpp::async::AbstractCoro
   if(shortMessageStream && frameHeader->payloadLength > 125) {
     throw std::runtime_error("[oatpp::web::protocol::websocket::AsyncWebSocket::readPayloadAsync()]: Invalid frame payload length. See RFC-6455, section-5.5.");
   }
-  
-  // Call Coroutine here
-  return parentCoroutine->startCoroutine<ReadPayloadCoroutine>(std::forward<Action>(actionOnReturn), shared_from_this(), m_connection, frameHeader, shortMessageStream, m_listener);
+
+  return ReadPayloadCoroutine::start(shared_from_this(), m_connection, frameHeader, shortMessageStream, m_listener);
   
 }
   
-oatpp::async::Action AsyncWebSocket::handleFrameAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                      Action&& actionOnReturn,
-                                                      const std::shared_ptr<Frame::Header>& frameHeader)
-{
+oatpp::async::CoroutineStarter AsyncWebSocket::handleFrameAsync(const std::shared_ptr<Frame::Header>& frameHeader) {
   
   class HandleFrameCoroutine : public oatpp::async::Coroutine<HandleFrameCoroutine> {
   private:
@@ -359,33 +348,33 @@ oatpp::async::Action AsyncWebSocket::handleFrameAsync(oatpp::async::AbstractCoro
           if(m_socket->m_lastOpcode < 0) {
             throw std::runtime_error("[oatpp::web::protocol::websocket::AsyncWebSocket::handleFrameAsync(){HandleFrameCoroutine}]: Invalid communication state.");
           }
-          return m_socket->readPayloadAsync(this, finish(), m_frameHeader, nullptr);
+          return m_socket->readPayloadAsync(m_frameHeader, nullptr).next(finish());
           
         case Frame::OPCODE_TEXT:
           if(m_socket->checkForContinuation(*m_frameHeader)) {
-            return m_socket->readPayloadAsync(this, finish(), m_frameHeader, nullptr);
+            return m_socket->readPayloadAsync(m_frameHeader, nullptr).next(finish());
           } else {
             throw std::runtime_error("[oatpp::web::protocol::websocket::AsyncWebSocket::handleFrameAsync(){HandleFrameCoroutine}]: Invalid communication state. OPCODE_CONTINUATION expected");
           }
           
         case Frame::OPCODE_BINARY:
           if(m_socket->checkForContinuation(*m_frameHeader)) {
-            return m_socket->readPayloadAsync(this, finish(), m_frameHeader, nullptr);
+            return m_socket->readPayloadAsync(m_frameHeader, nullptr).next(finish());
           } else {
             throw std::runtime_error("[oatpp::web::protocol::websocket::AsyncWebSocket::handleFrameAsync(){HandleFrameCoroutine}]: Invalid communication state. OPCODE_CONTINUATION expected");
           }
           
         case Frame::OPCODE_CLOSE:
           m_shortMessageStream = oatpp::data::stream::ChunkedBuffer::createShared();
-          return m_socket->readPayloadAsync(this, yieldTo(&HandleFrameCoroutine::onClose), m_frameHeader, m_shortMessageStream);
+          return m_socket->readPayloadAsync(m_frameHeader, m_shortMessageStream).next(yieldTo(&HandleFrameCoroutine::onClose));
           
         case Frame::OPCODE_PING:
           m_shortMessageStream = oatpp::data::stream::ChunkedBuffer::createShared();
-          return m_socket->readPayloadAsync(this, yieldTo(&HandleFrameCoroutine::onPing), m_frameHeader, m_shortMessageStream);
+          return m_socket->readPayloadAsync(m_frameHeader, m_shortMessageStream).next(yieldTo(&HandleFrameCoroutine::onPing));
           
         case Frame::OPCODE_PONG:
           m_shortMessageStream = oatpp::data::stream::ChunkedBuffer::createShared();
-          return m_socket->readPayloadAsync(this, yieldTo(&HandleFrameCoroutine::onPong), m_frameHeader, m_shortMessageStream);
+          return m_socket->readPayloadAsync(m_frameHeader, m_shortMessageStream).next(yieldTo(&HandleFrameCoroutine::onPong));
           
         default:
           throw std::runtime_error("[oatpp::web::protocol::websocket::AsyncWebSocket::handleFrameAsync(){HandleFrameCoroutine}]: Unknown frame");
@@ -406,32 +395,32 @@ oatpp::async::Action AsyncWebSocket::handleFrameAsync(oatpp::async::AbstractCoro
         if(!message) {
           message = "";
         }
-        return m_listener->onClose(this, finish(), m_socket, code, message);
+        return m_listener->onClose(m_socket, code, message).next(finish());
       }
       return finish();
     }
     
     Action onPing() {
       if(m_listener) {
-        return m_listener->onPing(this, finish(), m_socket, m_shortMessageStream->toString());
+        return m_listener->onPing(m_socket, m_shortMessageStream->toString()).next(finish());
       }
       return finish();
     }
     
     Action onPong() {
       if(m_listener) {
-        return m_listener->onPong(this, finish(), m_socket, m_shortMessageStream->toString());
+        return m_listener->onPong(m_socket, m_shortMessageStream->toString()).next(finish());
       }
       return finish();
     }
     
   };
   
-  return parentCoroutine->startCoroutine<HandleFrameCoroutine>(std::forward<Action>(actionOnReturn), shared_from_this(), frameHeader);
+  return HandleFrameCoroutine::start(shared_from_this(), frameHeader);
   
 }
   
-oatpp::async::Action AsyncWebSocket::listenAsync(oatpp::async::AbstractCoroutine* parentCoroutine, Action&& actionOnReturn) {
+oatpp::async::CoroutineStarter AsyncWebSocket::listenAsync() {
 
   class ListenCoroutine : public oatpp::async::Coroutine<ListenCoroutine> {
   private:
@@ -448,31 +437,25 @@ oatpp::async::Action AsyncWebSocket::listenAsync(oatpp::async::AbstractCoroutine
     
     Action act() override {
       if(m_frameHeader->opcode != Frame::OPCODE_CLOSE ) {
-        return m_socket->readFrameHeaderAsync(this,
-                                              m_socket->handleFrameAsync(this,
-                                                                         yieldTo(&ListenCoroutine::act),
-                                                                         m_frameHeader),
-                                              m_frameHeader);
+        return m_socket->readFrameHeaderAsync(m_frameHeader).next(m_socket->handleFrameAsync(m_frameHeader)).next(yieldTo(&ListenCoroutine::act));
       }
       return finish();
     }
     
     Action handleError(const std::shared_ptr<const Error>& error) override {
-      return finish();
+      return Action::TYPE_ERROR;
     }
     
   };
   
-  return parentCoroutine->startCoroutine<ListenCoroutine>(std::forward<Action>(actionOnReturn), shared_from_this());
+  return ListenCoroutine::start(shared_from_this());
   
 }
   
-oatpp::async::Action AsyncWebSocket::sendFrameHeaderAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                          Action&& actionOnReturn,
-                                                          const std::shared_ptr<Frame::Header>& frameHeader,
-                                                          bool fin, v_word8 opcode, v_int64 messageSize)
+oatpp::async::CoroutineStarter AsyncWebSocket::sendFrameHeaderAsync(const std::shared_ptr<Frame::Header>& frameHeader,
+                                                                    bool fin, v_word8 opcode, v_int64 messageSize)
 {
-  
+
   frameHeader->fin = fin;
   frameHeader->rsv1 = false;
   frameHeader->rsv2 = false;
@@ -480,18 +463,15 @@ oatpp::async::Action AsyncWebSocket::sendFrameHeaderAsync(oatpp::async::Abstract
   frameHeader->opcode = opcode;
   frameHeader->hasMask = m_maskOutgoingMessages;
   frameHeader->payloadLength = messageSize;
-  
+
   if(frameHeader->hasMask) {
     Utils::generateMaskForFrame(*frameHeader);
   }
-  
-  return writeFrameHeaderAsync(parentCoroutine, std::forward<Action>(actionOnReturn), frameHeader);
+
+  return writeFrameHeaderAsync(frameHeader);
 }
   
-oatpp::async::Action AsyncWebSocket::sendOneFrameAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                       Action&& actionOnReturn,
-                                                       bool fin, v_word8 opcode, const oatpp::String& message)
-{
+oatpp::async::CoroutineStarter AsyncWebSocket::sendOneFrameAsync(bool fin, v_word8 opcode, const oatpp::String& message) {
   
   class SendFrameCoroutine : public oatpp::async::Coroutine<SendFrameCoroutine> {
   private:
@@ -523,9 +503,9 @@ oatpp::async::Action AsyncWebSocket::sendOneFrameAsync(oatpp::async::AbstractCor
     
     Action act() override {
       if(m_message && m_message->getSize() > 0) {
-        return m_socket->sendFrameHeaderAsync(this, yieldTo(&SendFrameCoroutine::prepareWriteMessage), m_frameHeader, m_fin, m_opcode, m_message->getSize());
+        return m_socket->sendFrameHeaderAsync(m_frameHeader, m_fin, m_opcode, m_message->getSize()).next(yieldTo(&SendFrameCoroutine::prepareWriteMessage));
       } else {
-        return m_socket->sendFrameHeaderAsync(this, finish(), m_frameHeader, m_fin, m_opcode, 0);
+        return m_socket->sendFrameHeaderAsync(m_frameHeader, m_fin, m_opcode, 0).next(finish());
       }
     }
     
@@ -550,11 +530,11 @@ oatpp::async::Action AsyncWebSocket::sendOneFrameAsync(oatpp::async::AbstractCor
     
   };
   
-  return parentCoroutine->startCoroutine<SendFrameCoroutine>(std::forward<Action>(actionOnReturn), shared_from_this(), fin, opcode, message);
+  return SendFrameCoroutine::start(shared_from_this(), fin, opcode, message);
   
 }
   
-oatpp::async::Action AsyncWebSocket::sendCloseAsync(oatpp::async::AbstractCoroutine* parentCoroutine, Action&& actionOnReturn, v_word16 code, const oatpp::String& message) {
+oatpp::async::CoroutineStarter AsyncWebSocket::sendCloseAsync(v_word16 code, const oatpp::String& message) {
 
   code = htons(code);
   
@@ -564,28 +544,28 @@ oatpp::async::Action AsyncWebSocket::sendCloseAsync(oatpp::async::AbstractCorout
     buffer.write(message->getData(), message->getSize());
   }
   
-  return sendOneFrameAsync(parentCoroutine, std::forward<Action>(actionOnReturn), true, Frame::OPCODE_CLOSE, buffer.toString());
+  return sendOneFrameAsync(true, Frame::OPCODE_CLOSE, buffer.toString());
   
 }
 
-oatpp::async::Action AsyncWebSocket::sendCloseAsync(oatpp::async::AbstractCoroutine* parentCoroutine, Action&& actionOnReturn) {
-  return sendOneFrameAsync(parentCoroutine, std::forward<Action>(actionOnReturn), true, Frame::OPCODE_CLOSE, nullptr);
+oatpp::async::CoroutineStarter AsyncWebSocket::sendCloseAsync() {
+  return sendOneFrameAsync(true, Frame::OPCODE_CLOSE, nullptr);
 }
 
-oatpp::async::Action AsyncWebSocket::sendPingAsync(oatpp::async::AbstractCoroutine* parentCoroutine, Action&& actionOnReturn, const oatpp::String& message) {
-  return sendOneFrameAsync(parentCoroutine, std::forward<Action>(actionOnReturn), true, Frame::OPCODE_PING, message);
+oatpp::async::CoroutineStarter AsyncWebSocket::sendPingAsync(const oatpp::String& message) {
+  return sendOneFrameAsync(true, Frame::OPCODE_PING, message);
 }
 
-oatpp::async::Action AsyncWebSocket::sendPongAsync(oatpp::async::AbstractCoroutine* parentCoroutine, Action&& actionOnReturn, const oatpp::String& message) {
-  return sendOneFrameAsync(parentCoroutine, std::forward<Action>(actionOnReturn), true, Frame::OPCODE_PONG, message);
+oatpp::async::CoroutineStarter AsyncWebSocket::sendPongAsync(const oatpp::String& message) {
+  return sendOneFrameAsync(true, Frame::OPCODE_PONG, message);
 }
 
-oatpp::async::Action AsyncWebSocket::sendOneFrameTextAsync(oatpp::async::AbstractCoroutine* parentCoroutine, Action&& actionOnReturn, const oatpp::String& message) {
-  return sendOneFrameAsync(parentCoroutine, std::forward<Action>(actionOnReturn), true, Frame::OPCODE_TEXT, message);
+oatpp::async::CoroutineStarter AsyncWebSocket::sendOneFrameTextAsync(const oatpp::String& message) {
+  return sendOneFrameAsync(true, Frame::OPCODE_TEXT, message);
 }
 
-oatpp::async::Action AsyncWebSocket::sendOneFrameBinaryAsync(oatpp::async::AbstractCoroutine* parentCoroutine, Action&& actionOnReturn, const oatpp::String& message) {
-  return sendOneFrameAsync(parentCoroutine, std::forward<Action>(actionOnReturn), true, Frame::OPCODE_BINARY, message);
+oatpp::async::CoroutineStarter AsyncWebSocket::sendOneFrameBinaryAsync(const oatpp::String& message) {
+  return sendOneFrameAsync(true, Frame::OPCODE_BINARY, message);
 }
   
 }}
