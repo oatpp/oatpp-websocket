@@ -9,6 +9,8 @@ jobs:
     continueOnError: false
     pool:
       vmImage: 'Ubuntu 16.04'
+    container:
+      image: lganzzzo/ubuntu-cmake:latest
     workspace:
       clean: all
     steps:
@@ -16,7 +18,7 @@ jobs:
           mkdir build
       - task: CMake@1
       - script: |
-          cmake -DOATPP_MODULES_LOCATION=EXTERNAL -DBUILD_SHARED_LIBS=ON ..
+          cmake -DOATPP_MODULES_LOCATION=EXTERNAL ..
           make
         displayName: 'CMake'
         workingDirectory: build
