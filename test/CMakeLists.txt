@@ -1,3 +1,7 @@
+if (UNIX AND NOT APPLE)
+    set (CMAKE_EXE_LINKER_FLAGS "-Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
+endif ()
+
 add_executable(module-tests
         oatpp-websocket/tests.cpp
         oatpp-websocket/app/AsyncController.hpp
@@ -31,10 +35,6 @@ target_link_oatpp(module-tests)
 target_link_libraries(module-tests
         PRIVATE ${OATPP_THIS_MODULE_NAME}
 )
-
-if (UNIX AND NOT APPLE)
-    set (CMAKE_EXE_LINKER_FLAGS "-Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
-endif ()
 
 ## TODO link dependencies here (if some)
 
