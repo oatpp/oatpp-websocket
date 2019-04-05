@@ -101,6 +101,10 @@ message("\n#####################################################################
 
 include(cmake/module-utils.cmake)
 
+if (UNIX AND NOT APPLE)
+    set (CMAKE_EXE_LINKER_FLAGS "-Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
+endif ()
+
 add_subdirectory("src")
 
 if(OATPP_BUILD_TESTS)

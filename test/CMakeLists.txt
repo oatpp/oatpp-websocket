@@ -1,6 +1,3 @@
-if (UNIX AND NOT APPLE)
-    set (CMAKE_EXE_LINKER_FLAGS "-Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
-endif ()
 
 add_executable(module-tests
         oatpp-websocket/tests.cpp
