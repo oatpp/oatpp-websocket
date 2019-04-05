@@ -16,7 +16,7 @@ jobs:
           mkdir build
       - task: CMake@1
       - script: |
-          cmake -DOATPP_MODULES_LOCATION=EXTERNAL ..
+          cmake -DOATPP_MODULES_LOCATION=EXTERNAL -DBUILD_SHARED_LIBS=ON ..
           make
         displayName: 'CMake'
         workingDirectory: build
