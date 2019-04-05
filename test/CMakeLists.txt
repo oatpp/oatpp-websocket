@@ -32,6 +32,10 @@ target_link_libraries(module-tests
         PRIVATE ${OATPP_THIS_MODULE_NAME}
 )
 
+if (UNIX AND NOT APPLE)
+    set (CMAKE_EXE_LINKER_FLAGS "-Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
+endif ()
+
 ## TODO link dependencies here (if some)
 
 add_test(module-tests module-tests)
