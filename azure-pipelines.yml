@@ -9,8 +9,6 @@ jobs:
     continueOnError: false
     pool:
       vmImage: 'Ubuntu 16.04'
-    container:
-      image: lganzzzo/ubuntu-cmake:latest
     workspace:
       clean: all
     steps:
