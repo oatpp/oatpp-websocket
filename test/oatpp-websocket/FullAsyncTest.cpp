@@ -227,8 +227,6 @@ void FullAsyncTest::onRun() {
 
   OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, serverExecutor, "ws-server-exec");
   OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, clientExecutor, "ws-client-exec");
-  serverExecutor->detach();
-  clientExecutor->detach();
 
   oatpp::test::web::ClientServerTestRunner runner;
 
@@ -263,6 +261,12 @@ void FullAsyncTest::onRun() {
     }
 
   }, std::chrono::minutes(10));
+
+  serverExecutor->stop();
+  clientExecutor->stop();
+
+  serverExecutor->join();
+  clientExecutor->join();
 
 }
 
