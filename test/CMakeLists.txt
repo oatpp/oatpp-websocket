@@ -1,5 +1,14 @@
+
 add_executable(module-tests
         oatpp-websocket/tests.cpp
+        oatpp-websocket/app/AsyncController.hpp
+        oatpp-websocket/app/AsyncWebSocketListener.hpp
+        oatpp-websocket/app/Controller.hpp
+        oatpp-websocket/app/WebSocketListener.hpp
+        oatpp-websocket/FullAsyncTest.cpp
+        oatpp-websocket/FullAsyncTest.hpp
+        oatpp-websocket/FullTest.cpp
+        oatpp-websocket/FullTest.hpp
 )
 
 set_target_properties(module-tests PROPERTIES

@@ -1,6 +1,9 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
+#include "FullAsyncTest.hpp"
+#include "FullTest.hpp"
+
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
@@ -36,13 +39,12 @@ public:
     oatpp::websocket::Handshaker::Headers headers;
     oatpp::websocket::Handshaker::clientsideHandshake(headers);
 
-    // TODO write correct  tests
-
   }
 };
 
 void runTests() {
-  OATPP_RUN_TEST(Test);
+  //OATPP_RUN_TEST(oatpp::test::websocket::FullTest);
+  OATPP_RUN_TEST(oatpp::test::websocket::FullAsyncTest);
 }
 
 }

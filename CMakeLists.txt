@@ -99,6 +99,10 @@ message("\n#####################################################################
 ###################################################################################################
 ## define targets
 
+if(UNIX AND NOT APPLE)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
+endif()
+
 include(cmake/module-utils.cmake)
 
 add_subdirectory("src")

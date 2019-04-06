@@ -6,7 +6,7 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi, <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,11 @@ public:
    * Convenience typedef for &id:oatpp::async::Action;.
    */
   typedef oatpp::async::Action Action;
+
+  /**
+   * Convenince typedef for &id:oatpp::async::CoroutineStarter;.
+   */
+  typedef oatpp::async::CoroutineStarter CoroutineStarter;
 public:
 
   /**
@@ -54,6 +59,11 @@ public:
     typedef oatpp::async::Action Action;
 
     /**
+     * Convenince typedef for &id:oatpp::async::CoroutineStarter;.
+     */
+    typedef oatpp::async::CoroutineStarter CoroutineStarter;
+
+    /**
      * Convenience typedef for &id:oatpp::websocket::AsyncWebSocket;.
      */
     typedef oatpp::websocket::AsyncWebSocket AsyncWebSocket;
@@ -61,86 +71,60 @@ public:
 
     /**
      * Called when "ping" frame received
-     * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-     * @param actionOnReturn - action to perform once done. &id:oatpp::async::Action;.
      * @param socket - &id:oatpp::websocket::AsyncWebSocket;.
      * @param message - message received with the frame.
-     * @return -  &id:oatpp::async::Action;. <br>
-     * *To ignore this event return actionOnReturn.*
+     * @return - &id:oatpp::async::CoroutineStarter;.
+     * *To ignore this event return nullptr.*
      */
-    virtual Action onPing(oatpp::async::AbstractCoroutine* parentCoroutine,
-                          const Action& actionOnReturn,
-                          const std::shared_ptr<AsyncWebSocket>& socket,
-                          const oatpp::String& message) = 0;
+    virtual CoroutineStarter onPing(const std::shared_ptr<AsyncWebSocket>& socket, const oatpp::String& message) = 0;
 
     /**
      * Called when "pong" frame received
-     * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-     * @param actionOnReturn - action to perform once done. &id:oatpp::async::Action;.
      * @param socket - &id:oatpp::websocket::AsyncWebSocket;.
      * @param message - message received with the frame.
-     * @return - &id:oatpp::async::Action;. <br>
-     * *To ignore this event return actionOnReturn.*
+     * @return - &id:oatpp::async::CoroutineStarter;. <br>
+     * *To ignore this event return nullptr.*
      */
-    virtual Action onPong(oatpp::async::AbstractCoroutine* parentCoroutine,
-                          const Action& actionOnReturn,
-                          const std::shared_ptr<AsyncWebSocket>& socket,
-                          const oatpp::String& message) = 0;
+    virtual CoroutineStarter onPong(const std::shared_ptr<AsyncWebSocket>& socket, const oatpp::String& message) = 0;
 
     /**
      * Called when "close" frame received
-     * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-     * @param actionOnReturn - action to perform once done. &id:oatpp::async::Action;.
      * @param socket - &id:oatpp::websocket::AsyncWebSocket;.
      * @param code - code of the websocket connection close message.
      * @param message - message text. &id:oatpp::String;.
-     * @return - &id:oatpp::async::Action;. <br>
-     * *To ignore this event return actionOnReturn.*
+     * @return - &id:oatpp::async::CoroutineStarter;. <br>
+     * *To ignore this event return nullptr.*
      */
-    virtual Action onClose(oatpp::async::AbstractCoroutine* parentCoroutine,
-                           const Action& actionOnReturn,
-                           const std::shared_ptr<AsyncWebSocket>& socket,
-                           v_word16 code, const oatpp::String& message) = 0;
+    virtual CoroutineStarter onClose(const std::shared_ptr<AsyncWebSocket>& socket, v_word16 code, const oatpp::String& message) = 0;
 
     /**
      * Called when "text" or "binary" frame received. <br>
      * When all data of message is read, readMessage is called again with size == 0 to
      * indicate end of the message.
-     * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-     * @param actionOnReturn - action to perform once done. &id:oatpp::async::Action;.
      * @param socket - &id:oatpp::websocket::AsyncWebSocket;.
      * @param data - pointer to received data.
      * @param size - data size. &id:oatpp::data::v_io_size;.
-     * @return - &id:oatpp::async::Action;. <br>
-     * *To ignore this event return actionOnReturn.*
+     * @return - &id:oatpp::async::CoroutineStarter;. <br>
+     * *To ignore this event return nullptr.*
      */
-    virtual Action readMessage(oatpp::async::AbstractCoroutine* parentCoroutine,
-                               const Action& actionOnReturn,
-                               const std::shared_ptr<AsyncWebSocket>& socket,
-                               p_char8 data, data::v_io_size size) = 0;
+    virtual CoroutineStarter readMessage(const std::shared_ptr<AsyncWebSocket>& socket, p_char8 data, data::v_io_size size) = 0;
     
   };
   
 private:
   
   bool checkForContinuation(const Frame::Header& frameHeader);
-  
-  Action readFrameHeaderAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                              const Action& actionOnReturn,
-                              const std::shared_ptr<Frame::Header>& frameHeader);
+
+  CoroutineStarter readFrameHeaderAsync(const std::shared_ptr<Frame::Header>& frameHeader);
   
   /*
    * if(shortMessageStream == nullptr) - read call readMessage() method of listener
    * if(shortMessageStream) - read message to shortMessageStream. Don't call listener
    */
-  Action readPayloadAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                          const Action& actionOnReturn,
-                          const std::shared_ptr<Frame::Header>& frameHeader,
-                          const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& shortMessageStream);
-  
-  Action handleFrameAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                          const Action& actionOnReturn,
-                          const std::shared_ptr<Frame::Header>& frameHeader);
+  CoroutineStarter readPayloadAsync(const std::shared_ptr<Frame::Header>& frameHeader,
+                                    const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& shortMessageStream);
+
+  CoroutineStarter handleFrameAsync(const std::shared_ptr<Frame::Header>& frameHeader);
   
 private:
   std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
@@ -195,111 +179,79 @@ public:
    * Start listening Coroutine. <br>
    * Read incoming frames and call corresponding methods of listener.
    * See &l:AsyncWebSocket::setListener ();.
-   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-   * @param actionOnReturn - action to perform when done listening. &id:oatpp::async::Action;.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  Action listenAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn);
-
-  /**
- * Use this method if you know what you are doing.
- * Send custom frame to peer.
- */
+  CoroutineStarter listenAsync();
 
   /**
    * Send custom frame to peer.<br>
    * *Use this method if you know what you are doing.*
-   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-   * @param actionOnReturn - action to perform when finished sending header. &id:oatpp::async::Action;.
    * @param frameHeader - &id:oatpp::websocket::Frame::Header;.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  Action writeFrameHeaderAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                               const Action& actionOnReturn,
-                               const std::shared_ptr<Frame::Header>& frameHeader);
+  CoroutineStarter writeFrameHeaderAsync(const std::shared_ptr<Frame::Header>& frameHeader);
 
   /**
    * Send default frame to peer with fin, opcode and messageSize set. <br>
    * *Use this method if you know what you are doing.*
-   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-   * @param actionOnReturn - action to perform when finished sending header. &id:oatpp::async::Action;.
    * @param frameHeader - &id:oatpp::websocket::Frame::Header;.
    * @param fin - FIN bit.
    * @param opcode - operation code. See &id:oatpp::websocket::Frame::Header;.
    * @param messageSize - size of the coming message.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  Action sendFrameHeaderAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                              const Action& actionOnReturn,
-                              const std::shared_ptr<Frame::Header>& frameHeader,
-                              bool fin, v_word8 opcode, v_int64 messageSize);
+  CoroutineStarter sendFrameHeaderAsync(const std::shared_ptr<Frame::Header>& frameHeader, bool fin, v_word8 opcode, v_int64 messageSize);
 
   /**
    * Send one frame message with custom fin and opcode.
-   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-   * @param actionOnReturn - action to perform once done. &id:oatpp::async::Action;.
    * @param fin - FIN bit.
    * @param opcode - operation code. See &id:oatpp::websocket::Frame::Header;.
    * @param message - message text. &id:oatpp::String;.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  Action sendOneFrameAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                           const Action& actionOnReturn,
-                           bool fin, v_word8 opcode, const oatpp::String& message);
+  CoroutineStarter sendOneFrameAsync(bool fin, v_word8 opcode, const oatpp::String& message);
 
   /**
    * Send close frame.
-   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-   * @param actionOnReturn - action to perform once done. &id:oatpp::async::Action;.
    * @param code - code of the websocket connection close message.
    * @param message - message text. &id:oatpp::String;.
    * @return - &id:oatpp::async::Action;.
    */
-  Action sendCloseAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, v_word16 code, const oatpp::String& message);
+  CoroutineStarter sendCloseAsync(v_word16 code, const oatpp::String& message);
 
   /**
    * Send close frame without message.
-   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-   * @param actionOnReturn - action to perform once done. &id:oatpp::async::Action;.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  Action sendCloseAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn);
+  CoroutineStarter sendCloseAsync();
 
   /**
    * Send ping frame.
-   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-   * @param actionOnReturn - action to perform once done. &id:oatpp::async::Action;.
    * @param message - message text. &id:oatpp::String;.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  Action sendPingAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, const oatpp::String& message);
+  CoroutineStarter sendPingAsync(const oatpp::String& message);
 
   /**
    * Send pong frame.
-   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-   * @param actionOnReturn - action to perform once done. &id:oatpp::async::Action;.
    * @param message - message text. &id:oatpp::String;.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  Action sendPongAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, const oatpp::String& message);
+  CoroutineStarter sendPongAsync(const oatpp::String& message);
 
   /**
    * Send one frame text message.
-   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-   * @param actionOnReturn - action to perform once done. &id:oatpp::async::Action;.
    * @param message - message text. &id:oatpp::String;.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  Action sendOneFrameTextAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, const oatpp::String& message);
+  CoroutineStarter sendOneFrameTextAsync(const oatpp::String& message);
 
   /**
    * Send one frame binary message.
-   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-   * @param actionOnReturn - action to perform once done. &id:oatpp::async::Action;.
    * @param message - message text. &id:oatpp::String;.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  Action sendOneFrameBinaryAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, const oatpp::String& message);
+  CoroutineStarter sendOneFrameBinaryAsync(const oatpp::String& message);
   
 };
   

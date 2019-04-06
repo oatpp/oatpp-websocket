@@ -6,7 +6,7 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi, <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,11 +56,8 @@ std::shared_ptr<Connector::Connection> Connector::connect(const oatpp::String& p
   }
   
 }
-  
-oatpp::async::Action Connector::connectAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                      AsyncCallback callback,
-                                                      const oatpp::String& path)
-{
+
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Connector::Connection>&> Connector::connectAsync(const oatpp::String& path) {
   
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<Connection>&> {
   private:
@@ -80,9 +77,7 @@ oatpp::async::Action Connector::connectAsync(oatpp::async::AbstractCoroutine* pa
     {}
     
     Action act() override {
-      oatpp::network::ClientConnectionProvider::AsyncCallback callback =
-      static_cast<oatpp::network::ClientConnectionProvider::AsyncCallback>(&ConnectCoroutine::onConnected);
-      return m_connectionProvider->getConnectionAsync(this, callback);
+      return m_connectionProvider->getConnectionAsync().callbackTo(&ConnectCoroutine::onConnected);
     }
     
     Action onConnected(const std::shared_ptr<Connection>& connection) {
@@ -92,10 +87,8 @@ oatpp::async::Action Connector::connectAsync(oatpp::async::AbstractCoroutine* pa
       auto connectionHandle = std::make_shared<oatpp::web::client::HttpRequestExecutor::HttpConnectionHandle>(m_connection);
       m_handshakeHeaders.clear();
       Handshaker::clientsideHandshake(m_handshakeHeaders);
-      
-      oatpp::web::client::RequestExecutor::AsyncCallback callback =
-      static_cast<oatpp::web::client::RequestExecutor::AsyncCallback>(&ConnectCoroutine::onServerResponse);
-      return m_requestExecutor.executeAsync(this, callback, "GET", m_path, m_handshakeHeaders, nullptr, connectionHandle);
+
+      return m_requestExecutor.executeAsync("GET", m_path, m_handshakeHeaders, nullptr, connectionHandle).callbackTo(&ConnectCoroutine::onServerResponse);
       
     }
     
@@ -116,7 +109,7 @@ oatpp::async::Action Connector::connectAsync(oatpp::async::AbstractCoroutine* pa
     
   };
   
-  return parentCoroutine->startCoroutineForResult<ConnectCoroutine>(callback, m_connectionProvider, m_requestExecutor, path);
+  return ConnectCoroutine::startForResult(m_connectionProvider, m_requestExecutor, path);
   
 }
   
