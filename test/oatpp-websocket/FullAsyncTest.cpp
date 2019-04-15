@@ -33,11 +33,11 @@ class TestComponent {
 public:
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, serverExecutor)("ws-server-exec", [] {
-    return std::make_shared<oatpp::async::Executor>(5);
+    return std::make_shared<oatpp::async::Executor>(4, 2);
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, clientExecutor)("ws-client-exec", [] {
-    return std::make_shared<oatpp::async::Executor>(5);
+    return std::make_shared<oatpp::async::Executor>(4, 2);
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, virtualInterface)([] {
@@ -210,7 +210,7 @@ public:
     if(error) {
       OATPP_LOGD("Client", "Error. !!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!! %s", error->what());
     }
-    return Action::TYPE_ERROR;
+    return propagateError();
   }
 
 };
