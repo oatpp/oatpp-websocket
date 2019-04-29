@@ -443,7 +443,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::listenAsync() {
     }
     
     Action handleError(const std::shared_ptr<const Error>& error) override {
-      return Action::TYPE_ERROR;
+      return propagateError();
     }
     
   };

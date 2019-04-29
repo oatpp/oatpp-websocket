@@ -33,11 +33,11 @@ class TestComponent {
 public:
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, serverExecutor)("ws-server-exec", [] {
-    return std::make_shared<oatpp::async::Executor>(5);
+    return std::make_shared<oatpp::async::Executor>(4, 2);
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, clientExecutor)("ws-client-exec", [] {
-    return std::make_shared<oatpp::async::Executor>(5);
+    return std::make_shared<oatpp::async::Executor>(4, 2);
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, virtualInterface)([] {
@@ -46,10 +46,10 @@ public:
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, serverConnectionProvider)([] {
 #ifdef OATPP_TEST_USE_PORT
-    return oatpp::network::server::SimpleTCPConnectionProvider::createShared(OATPP_TEST_USE_PORT, true /* nonBlocking */);
+    return oatpp::network::server::SimpleTCPConnectionProvider::createShared(OATPP_TEST_USE_PORT);
 #else
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, interface);
-    return oatpp::network::virtual_::server::ConnectionProvider::createShared(interface, true /* nonBlocking */);
+    return oatpp::network::virtual_::server::ConnectionProvider::createShared(interface);
 #endif
   }());
 
@@ -210,7 +210,7 @@ public:
     if(error) {
       OATPP_LOGD("Client", "Error. !!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!! %s", error->what());
     }
-    return Action::TYPE_ERROR;
+    return propagateError();
   }
 
 };
