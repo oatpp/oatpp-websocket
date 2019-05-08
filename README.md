@@ -1,11 +1,12 @@
 # oatpp-websocket [![Build Status](https://dev.azure.com/lganzzzo/lganzzzo/_apis/build/status/oatpp.oatpp-websocket?branchName=master)](https://dev.azure.com/lganzzzo/lganzzzo/_build?definitionId=6&branchName=master)
 
-oatpp-websocket submodule.  
-It provides WebSocket functionality. Server/Client + Simple/Async APIs.
+**oatpp-websocket** - extension for **oatpp** web framework.  
+It provides WebSocket functionality for oatpp applications.  
 
-More about oat++:
-- Website: [https://oatpp.io](https://oatpp.io)
-- Repo: [https://github.com/oatpp/oatpp](https://github.com/oatpp/oatpp)
+See more:
+- [Oatpp website](https://oatpp.io/)
+- [Oatpp github repository](https://github.com/oatpp/oatpp)
+- [2 Million WebSockets benchmark](https://oatpp.io/benchmark/websocket/2-million/)
 
 ## API
 
