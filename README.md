@@ -4,9 +4,10 @@
 It provides WebSocket functionality for oatpp applications.  
 
 See more:
-- [Oatpp website](https://oatpp.io/)
-- [Oatpp github repository](https://github.com/oatpp/oatpp)
-- [2 Million WebSockets benchmark](https://oatpp.io/benchmark/websocket/2-million/)
+
+- [Oat++ Website](https://oatpp.io/)
+- [Oat++ Github Repository](https://github.com/oatpp/oatpp)
+- [5 Million WebSockets benchmark](https://oatpp.io/benchmark/websocket/5-million/)
 
 ## API
 
