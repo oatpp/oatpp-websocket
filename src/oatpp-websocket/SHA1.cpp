@@ -24,6 +24,7 @@
 #include <sstream>
 #include <iomanip>
 #include <fstream>
+#include <cstdint>
 
 #include <arpa/inet.h>
 
