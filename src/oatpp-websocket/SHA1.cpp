@@ -24,7 +24,6 @@
 #include <sstream>
 #include <iomanip>
 #include <fstream>
-#include <cstdint>
 
 #include <arpa/inet.h>
 
@@ -301,7 +300,7 @@ oatpp::String SHA1::finalBinary() {
   
   oatpp::data::stream::ChunkedBuffer resultStream;
   for (size_t i = 0; i < sizeof(digest) / sizeof(digest[0]); i++) {
-    u_int32_t b = htonl(digest[i]);
+    uint32_t b = htonl(digest[i]);
     resultStream.write(&b, 4);
   }
   
