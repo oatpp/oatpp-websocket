@@ -62,10 +62,7 @@ public:
    * Server's response contains unexpected headers values
    */
   static constexpr v_int32 STATUS_UNKNOWN_PROTOCOL_SUGGESTED = 3;
-private:
-  /* Random used to generate "Sec-WebSocket-Key" */
-  static thread_local std::mt19937 RANDOM_GENERATOR;
-  static thread_local std::uniform_int_distribution<size_t> RANDOM_DISTRIBUTION;
+
 public:
   /**
    * Convenience typedef for &id:oatpp::web::protocol::http::outgoing::Response;.
@@ -79,7 +76,6 @@ public:
   typedef oatpp::web::protocol::http::Headers Headers;
   typedef oatpp::network::server::ConnectionHandler ConnectionHandler;
 private:
-  static oatpp::String generateKey();
   static oatpp::String getHeader(const Headers& headers, const oatpp::data::share::StringKeyLabelCI_FAST& key);
 public:
 

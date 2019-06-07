@@ -25,23 +25,13 @@
 #include "Handshaker.hpp"
 
 #include "./SHA1.hpp"
+#include "./Utils.hpp"
+
 #include "oatpp/encoding/Base64.hpp"
 
 namespace oatpp { namespace websocket {
   
 const char* const Handshaker::MAGIC_UUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-  
-thread_local std::mt19937 Handshaker::RANDOM_GENERATOR (std::random_device{}());
-thread_local std::uniform_int_distribution<size_t> Handshaker::RANDOM_DISTRIBUTION (0, 255);
-  
-oatpp::String Handshaker::generateKey() {
-  v_int32 keySize = 16;
-  oatpp::String key(keySize);
-  for(v_int32 i = 0; i < keySize; i ++) {
-    key->getData()[i] = RANDOM_DISTRIBUTION(RANDOM_GENERATOR);
-  }
-  return oatpp::encoding::Base64::encode(key);
-}
   
 oatpp::String Handshaker::getHeader(const Headers& headers, const oatpp::data::share::StringKeyLabelCI_FAST& key) {
   
@@ -103,7 +93,7 @@ void Handshaker::clientsideHandshake(Headers& requestHeaders) {
   requestHeaders[oatpp::web::protocol::http::Header::UPGRADE] = "websocket";
   requestHeaders[oatpp::web::protocol::http::Header::CONNECTION] = oatpp::web::protocol::http::Header::Value::CONNECTION_UPGRADE;
   requestHeaders["Sec-WebSocket-Version"] = "13";
-  requestHeaders["Sec-WebSocket-Key"] = generateKey();
+  requestHeaders["Sec-WebSocket-Key"] = Utils::generateKey();
 }
   
 v_int32 Handshaker::clientsideConfirmHandshake(const Headers& clientHandshakeHeaders, const std::shared_ptr<IncomingResponse>& serverResponse) {

@@ -28,6 +28,29 @@ option(OATPP_INSTALL "Install module binaries" ON)
 set(OATPP_MODULES_LOCATION "INSTALLED" CACHE STRING "Location where to find oatpp modules. can be [INSTALLED|EXTERNAL|CUSTOM]")
 
 ###################################################################################################
+## COMPILATION CONFIG #############################################################################
+###################################################################################################
+
+option(OATPP_COMPAT_BUILD_NO_THREAD_LOCAL "Disable 'thread_local' feature" OFF)
+
+## Print config ##################################################################################
+
+message("\n############################################################################")
+message("## oatpp module compilation config:\n")
+
+message("OATPP_COMPAT_BUILD_NO_THREAD_LOCAL=${OATPP_COMPAT_BUILD_NO_THREAD_LOCAL}")
+
+## Set definitions ###############################################################################
+
+if(OATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
+    add_definitions(-DOATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
+endif()
+
+message("\n############################################################################\n")
+
+###################################################################################################
+
+###################################################################################################
 ## get oatpp main module in specified location
 
 set(OATPP_MODULES_LOCATION_INSTALLED INSTALLED)

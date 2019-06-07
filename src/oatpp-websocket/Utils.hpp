@@ -26,6 +26,7 @@
 #define oatpp_websocket_Utils_hpp
 
 #include "./Frame.hpp"
+#include "oatpp/core/concurrency/SpinLock.hpp"
 #include <random>
 
 namespace oatpp { namespace websocket {
@@ -35,15 +36,28 @@ namespace oatpp { namespace websocket {
  */
 class Utils {
 private:
-  /* Random used to generate message masks */
+
+#ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
   static thread_local std::mt19937 RANDOM_GENERATOR;
   static thread_local std::uniform_int_distribution<size_t> RANDOM_DISTRIBUTION;
+#else
+  static std::mt19937 RANDOM_GENERATOR;
+  static std::uniform_int_distribution<size_t> RANDOM_DISTRIBUTION;
+  static oatpp::concurrency::SpinLock RANDOM_LOCK;
+#endif
 public:
   /**
    * Generate random mask for frame.
    * @param frameHeader - &id:oatpp::websocket::Frame::Header;.
    */
   static void generateMaskForFrame(Frame::Header& frameHeader);
+
+  /**
+   * Generate `"Sec-WebSocket-Key"` header
+   * @return - `"Sec-WebSocket-Key"` header value. &id:oatpp::String;.
+   */
+  static oatpp::String generateKey();
+
 };
   
 }}
