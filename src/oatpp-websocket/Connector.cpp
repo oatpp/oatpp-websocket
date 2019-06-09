@@ -34,18 +34,24 @@ Connector::Connector(const std::shared_ptr<oatpp::network::ClientConnectionProvi
 {}
 
 std::shared_ptr<Connector::Connection> Connector::connect(const oatpp::String& path) {
-  
+
   auto connection = m_connectionProvider->getConnection();
+  if(!connection) {
+    throw std::runtime_error("[oatpp::web::client::Connector::connectAndHandshake()]: Can't connect. Call to ConnectionProvider::getConnection() failed.");
+  }
+
   auto connectionHandle = std::make_shared<oatpp::web::client::HttpRequestExecutor::HttpConnectionHandle>(connection);
   
   Handshaker::Headers headers;
   Handshaker::clientsideHandshake(headers);
-  
+
   auto response = m_requestExecutor.execute("GET", path, headers, nullptr, connectionHandle);
   auto res = Handshaker::clientsideConfirmHandshake(headers, response);
+
   if(res == Handshaker::STATUS_OK) {
     return connection;
   } else if(res == Handshaker::STATUS_SERVER_ERROR) {
+    OATPP_LOGD("[oatpp::web::client::Connector::connectAndHandshake()]", "Server response code=%d", response->getStatusCode());
     throw std::runtime_error("[oatpp::web::client::Connector::connectAndHandshake()]: Server responded with invalid code");
   } else if(res == Handshaker::STATUS_SERVER_WRONG_KEY) {
     throw std::runtime_error("[oatpp::web::client::Connector::connectAndHandshake()]: Server wrong handshake key");

@@ -118,9 +118,9 @@ v_int32 Handshaker::clientsideConfirmHandshake(const Headers& clientHandshakeHea
     auto websocketAccept = getHeader(responseHeaders, "Sec-WebSocket-Accept");
     
     auto clientKey = getHeader(clientHandshakeHeaders, "Sec-WebSocket-Key");
-    
+
     if(!version && upgrade && connection && websocketAccept && clientKey &&
-       upgrade == "websocket" && connection == oatpp::web::protocol::http::Header::Value::CONNECTION_UPGRADE)
+       upgrade == "websocket" && oatpp::base::StrBuffer::equalsCI("upgrade", connection->getData(), connection->getSize()))
     {
       
       auto websocketKey = clientKey + MAGIC_UUID;
