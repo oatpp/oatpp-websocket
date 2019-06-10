@@ -251,7 +251,7 @@ void SHA1::update(std::istream &is) {
     
     char sbuf[BLOCK_BYTES];
     
-    is.read(sbuf, BLOCK_BYTES - buffer.getSize());
+      is.read(sbuf, (std::__1::streamsize)(BLOCK_BYTES - buffer.getSize()));
     buffer.write(sbuf, (std::size_t)is.gcount());
     
     if (buffer.getSize() != BLOCK_BYTES) {
@@ -277,7 +277,7 @@ oatpp::String SHA1::finalBinary() {
   
   /* Padding */
   buffer.writeChar(0x80);
-  size_t orig_size = buffer.getSize();
+  size_t orig_size = (size_t)buffer.getSize();
   while (buffer.getSize() < BLOCK_BYTES) {
     buffer.writeChar(0x00);
   }
