@@ -23,16 +23,45 @@
  ***************************************************************************/
 
 #include "Utils.hpp"
+#include "oatpp/encoding/Base64.hpp"
 
 namespace oatpp { namespace websocket {
- 
-thread_local std::mt19937 Utils::RANDOM_GENERATOR (std::random_device{}());
-thread_local std::uniform_int_distribution<size_t> Utils::RANDOM_DISTRIBUTION (0, 255);
+
+#ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
+  thread_local std::mt19937 Utils::RANDOM_GENERATOR (std::random_device{}());
+  thread_local std::uniform_int_distribution<size_t> Utils::RANDOM_DISTRIBUTION (0, 255);
+#else
+  std::mt19937 Utils::RANDOM_GENERATOR (std::random_device{}());
+  std::uniform_int_distribution<size_t> Utils::RANDOM_DISTRIBUTION (0, 255);
+  oatpp::concurrency::SpinLock Utils::RANDOM_LOCK;
+#endif
 
 void Utils::generateMaskForFrame(Frame::Header& frameHeader) {
+
+#if defined(OATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
+  std::lock_guard<oatpp::concurrency::SpinLock> randomLock(RANDOM_LOCK);
+#endif
+
   for(v_int32 i = 0; i < 4; i ++) {
     frameHeader.mask[i] = RANDOM_DISTRIBUTION(RANDOM_GENERATOR);
   }
+
 }
-  
+
+oatpp::String Utils::generateKey() {
+
+#if defined(OATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
+  std::lock_guard<oatpp::concurrency::SpinLock> randomLock(RANDOM_LOCK);
+#endif
+
+  v_int32 keySize = 16;
+  oatpp::String key(keySize);
+  for(v_int32 i = 0; i < keySize; i ++) {
+    key->getData()[i] = RANDOM_DISTRIBUTION(RANDOM_GENERATOR);
+  }
+
+  return oatpp::encoding::Base64::encode(key);
+
+}
+
 }}
