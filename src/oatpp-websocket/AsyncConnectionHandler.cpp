@@ -52,18 +52,23 @@ void AsyncConnectionHandler::setSocketInstanceListener(const std::shared_ptr<Soc
   m_listener = listener;
 }
 
-void AsyncConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
+void AsyncConnectionHandler::handleConnection(const std::shared_ptr<IOStream>& connection,
+                                              const std::shared_ptr<const ParameterMap>& params)
+{
   
   class SocketCoroutine : public oatpp::async::Coroutine<SocketCoroutine> {
   private:
-    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+    std::shared_ptr<IOStream> m_connection;
+    std::shared_ptr<const ParameterMap> m_params;
     std::shared_ptr<SocketInstanceListener> m_listener;
     std::shared_ptr<AsyncWebSocket> m_socket;
   public:
     
-    SocketCoroutine(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+    SocketCoroutine(const std::shared_ptr<IOStream>& connection,
+                    const std::shared_ptr<const ParameterMap>& params,
                     const std::shared_ptr<SocketInstanceListener>& listener)
       : m_connection(connection)
+      , m_params(params)
       , m_listener(listener)
       , m_socket(nullptr)
     {}
@@ -77,14 +82,14 @@ void AsyncConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data:
     Action act() override {
       m_socket = AsyncWebSocket::createShared(m_connection, false);
       if(m_listener) {
-        m_listener->onAfterCreate_NonBlocking(m_socket);
+        m_listener->onAfterCreate_NonBlocking(m_socket, m_params);
       }
       return m_socket->listenAsync().next(finish());
     }
     
   };
   
-  m_executor->execute<SocketCoroutine>(connection, m_listener);
+  m_executor->execute<SocketCoroutine>(connection, params, m_listener);
   
 }
 

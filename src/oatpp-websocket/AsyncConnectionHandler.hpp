@@ -50,13 +50,30 @@ public:
    */
   class SocketInstanceListener {
   public:
+    /**
+     * Convenience typedef for &id:oatpp::websocket::AsyncWebSocket;.
+     */
+    typedef oatpp::websocket::AsyncWebSocket AsyncWebSocket;
+
+    /**
+     * Convenience typedef for &id:oatpp::network::server::ConnectionHandler::ParameterMap;.
+     */
+    typedef oatpp::network::server::ConnectionHandler::ParameterMap ParameterMap;
+  public:
 
     /**
      * Called when socket is created. <br>
      * **This method should not block**.
      * @param socket - &id:oatpp::websocket::AsyncWebSocket;.
      */
-    virtual void onAfterCreate_NonBlocking(const std::shared_ptr<AsyncWebSocket>& socket) = 0;
+
+    /**
+     * Called when socket is created. <br>
+     * **This method should not block**.
+     * @param socket - &id:oatpp::websocket::AsyncWebSocket;.
+     * @param params - `std::shared_ptr` to const &id:oatpp::network::server::ConnectionHandler::ParameterMap;.
+     */
+    virtual void onAfterCreate_NonBlocking(const std::shared_ptr<AsyncWebSocket>& socket, const std::shared_ptr<const ParameterMap>& params) = 0;
 
     /**
      * Called before socket instance is destroyed. <br>
@@ -110,7 +127,7 @@ public:
    * Implementation of &id:oatpp::network::server::ConnectionHandler::handleConnection;.
    * @param connection - &id:oatpp::data::stream::IOStream;.
    */
-  void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override;
+  void handleConnection(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) override;
 
   /**
    * Will call &id:oatpp::async::Executor::stop;.

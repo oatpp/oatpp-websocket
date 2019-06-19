@@ -67,16 +67,21 @@ public:
   /**
    *  Called when socket is created
    */
-  void onAfterCreate_NonBlocking(const std::shared_ptr<oatpp::websocket::AsyncWebSocket>& socket) override {
+  void onAfterCreate_NonBlocking(const std::shared_ptr<AsyncWebSocket>& socket, const std::shared_ptr<const ParameterMap>& params) override {
     getAtom() ++;
-    //OATPP_LOGD(TAG, "connections %d, thread %d", getAtom().load(), std::this_thread::get_id());
+
+    OATPP_ASSERT(params);
+    auto testParam = params->find("p1");
+    OATPP_ASSERT(testParam != params->end());
+    OATPP_ASSERT(testParam->second == "v1");
+
     socket->setListener(std::make_shared<AsyncWebSocketListener>());
   }
 
   /**
    *  Called before socket instance is destroyed.
    */
-  void onBeforeDestroy_NonBlocking(const std::shared_ptr<oatpp::websocket::AsyncWebSocket>& socket) override {
+  void onBeforeDestroy_NonBlocking(const std::shared_ptr<AsyncWebSocket>& socket) override {
     //OATPP_LOGD(TAG, "Closing connection");
     getAtom() --;
   }

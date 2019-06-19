@@ -43,12 +43,23 @@ public:
    */
   class SocketInstanceListener {
   public:
+    /**
+     * Convenience typedef fo &id:oatpp::websocket::WebSocket;.
+     */
+    typedef oatpp::websocket::WebSocket WebSocket;
+
+    /**
+     * Convenience typedef for &id:oatpp::network::server::ConnectionHandler::ParameterMap;.
+     */
+    typedef oatpp::network::server::ConnectionHandler::ParameterMap ParameterMap;
+  public:
 
     /**
      * Called when socket is created
      * @param socket - &id:oatpp::websocket::WebSocket;.
+     * @param params - `std::shared_ptr` to const &id:oatpp::network::server::ConnectionHandler::ParameterMap;.
      */
-    virtual void onAfterCreate(const WebSocket& socket) = 0;
+    virtual void onAfterCreate(const WebSocket& socket, const std::shared_ptr<const ParameterMap>& params) = 0;
 
     /**
      * Called before socket instance is destroyed.
@@ -86,7 +97,7 @@ public:
    * Implementation of &id:oatpp::network::server::ConnectionHandler::handleConnection;.
    * @param connection - &id:oatpp::data::stream::IOStream;.
    */
-  void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override;
+  void handleConnection(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) override;
 
   /**
    * Implementation of &id:oatpp::network::server::ConnectionHandler::stop;.

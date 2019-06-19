@@ -50,8 +50,10 @@ public:
 
     Action act() override {
       getAtom() ++;
-      //OATPP_LOGD("Controller", "ws %d, thread %d", getAtom().load(), std::this_thread::get_id());
+      auto params = std::make_shared<oatpp::network::server::ConnectionHandler::ParameterMap>();
+      (*params)["p1"] = "v1";
       auto response = oatpp::websocket::Handshaker::serversideHandshake(request->getHeaders(), controller->websocketConnectionHandler);
+      response->setConnectionUpgradeParameters(params);
       return _return(response);
     }
 

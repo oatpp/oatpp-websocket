@@ -59,7 +59,7 @@ public:
   /**
    *  Called when socket is created
    */
-  void onAfterCreate(const oatpp::websocket::WebSocket &socket) override {
+  void onAfterCreate(const oatpp::websocket::WebSocket &socket, const std::shared_ptr<const ParameterMap>& params) override {
     OATPP_LOGD(TAG, "New incomming connection %d", &socket);
 
     // set listener
