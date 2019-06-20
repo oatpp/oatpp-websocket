@@ -261,7 +261,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readPayloadAsync(const std::share
       }
       
       if(m_shortMessageStream == nullptr && m_frameHeader->fin && m_listener) {
-        return m_listener->readMessage(m_socket, nullptr, 0).next(finish());
+        return m_listener->readMessage(m_socket, m_frameHeader->opcode, nullptr, 0).next(finish());
       }
       
       return finish();
@@ -290,7 +290,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readPayloadAsync(const std::share
             /* this is RAM stream. Non-blocking call */
             m_shortMessageStream->write(decoded, readResult);
           } else if(m_listener) {
-            return m_listener->readMessage(m_socket, decoded, readResult).next(yieldTo(&ReadPayloadCoroutine::act));
+            return m_listener->readMessage(m_socket, m_frameHeader->opcode, decoded, readResult).next(yieldTo(&ReadPayloadCoroutine::act));
           }
           
         } else {
@@ -301,7 +301,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readPayloadAsync(const std::share
             /* this is RAM stream. Non-blocking call */
             m_shortMessageStream->write(m_buffer, readResult);
           } else if(m_listener) {
-            return m_listener->readMessage(m_socket, m_buffer, readResult).next(yieldTo(&ReadPayloadCoroutine::act));
+            return m_listener->readMessage(m_socket, m_frameHeader->opcode, m_buffer, readResult).next(yieldTo(&ReadPayloadCoroutine::act));
           }
           
         }

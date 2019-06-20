@@ -102,12 +102,13 @@ public:
      * When all data of message is read, readMessage is called again with size == 0 to
      * indicate end of the message.
      * @param socket - &id:oatpp::websocket::AsyncWebSocket;.
+     * @param opcode - &id:oatpp::websocket::Frame::OPCODE_TEXT; or &id:oatpp::websocket::Frame::OPCODE_BINARY;.
      * @param data - pointer to received data.
      * @param size - data size. &id:oatpp::data::v_io_size;.
      * @return - &id:oatpp::async::CoroutineStarter;. <br>
      * *To ignore this event return nullptr.*
      */
-    virtual CoroutineStarter readMessage(const std::shared_ptr<AsyncWebSocket>& socket, p_char8 data, data::v_io_size size) = 0;
+    virtual CoroutineStarter readMessage(const std::shared_ptr<AsyncWebSocket>& socket, v_word8 opcode, p_char8 data, data::v_io_size size) = 0;
     
   };
   

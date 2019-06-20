@@ -27,7 +27,7 @@ public:
     return socket->sendCloseAsync();
   }
 
-  CoroutineStarter readMessage(const std::shared_ptr<AsyncWebSocket>& socket, p_char8 data, oatpp::data::v_io_size size) override {
+  CoroutineStarter readMessage(const std::shared_ptr<AsyncWebSocket>& socket, v_word8 opcode, p_char8 data, oatpp::data::v_io_size size) override {
     if(size == 0) {
       oatpp::String wholeMessage = m_messageBuffer.toString();
       m_messageBuffer.clear();

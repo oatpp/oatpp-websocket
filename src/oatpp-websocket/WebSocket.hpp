@@ -76,10 +76,11 @@ public:
      * When all data of message is read, readMessage is called again with size == 0 to
      * indicate end of the message.
      * @param socket - &id:oatpp::websocket::WebSocket;.
+     * @param opcode - &id:oatpp::websocket::Frame::OPCODE_TEXT; or &id:oatpp::websocket::Frame::OPCODE_BINARY;.
      * @param data - pointer to message data.
      * @param size - data size.
      */
-    virtual void readMessage(const WebSocket& socket, p_char8 data, data::v_io_size size) = 0;
+    virtual void readMessage(const WebSocket& socket, v_word8 opcode, p_char8 data, data::v_io_size size) = 0;
     
   };
   

@@ -152,13 +152,13 @@ void WebSocket::readPayload(const Frame::Header& frameHeader, oatpp::data::strea
         if(shortMessageStream) {
           shortMessageStream->write(decoded, res);
         } else if(m_listener) {
-          m_listener->readMessage(*this, decoded, res);
+          m_listener->readMessage(*this, frameHeader.opcode, decoded, res);
         }
       } else {
         if(shortMessageStream) {
           shortMessageStream->write(buffer, res);
         } else if(m_listener) {
-          m_listener->readMessage(*this, buffer, res);
+          m_listener->readMessage(*this, frameHeader.opcode, buffer, res);
         }
       }
       progress += res;
@@ -175,7 +175,7 @@ void WebSocket::readPayload(const Frame::Header& frameHeader, oatpp::data::strea
   
   /* call listener to inform abount messge end */
   if(shortMessageStream == nullptr && frameHeader.fin && m_listener) {
-    m_listener->readMessage(*this, nullptr, 0);
+    m_listener->readMessage(*this, frameHeader.opcode, nullptr, 0);
   }
   
 }
