@@ -4,6 +4,7 @@ add_library(${OATPP_THIS_MODULE_NAME}
         oatpp-websocket/AsyncConnectionHandler.hpp
         oatpp-websocket/AsyncWebSocket.cpp
         oatpp-websocket/AsyncWebSocket.hpp
+        oatpp-websocket/Config.hpp
         oatpp-websocket/ConnectionHandler.cpp
         oatpp-websocket/ConnectionHandler.hpp
         oatpp-websocket/Connector.cpp

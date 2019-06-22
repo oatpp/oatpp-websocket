@@ -26,6 +26,7 @@
 #define oatpp_websocket_AsyncWebSocket_hpp
 
 #include "./Frame.hpp"
+#include "./Config.hpp"
 
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
@@ -128,12 +129,19 @@ private:
   CoroutineStarter handleFrameAsync(const std::shared_ptr<Frame::Header>& frameHeader);
   
 private:
+  Config m_config;
   std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
-  bool m_maskOutgoingMessages;
   std::shared_ptr<Listener> m_listener;
   v_int32 m_lastOpcode;
   mutable bool m_listening;
 public:
+
+  /**
+   * Constructor with Config.
+   * @param connection - &id:oatpp::data::stream::IOStream;.
+   * @param config - &id:oatpp::websocket::Config;.
+   */
+  AsyncWebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, Config config);
 
   /**
    * Constructor.
@@ -149,6 +157,16 @@ public:
   AsyncWebSocket& operator=(const AsyncWebSocket&) = delete;
   
 public:
+
+  /**
+   * Create shared AsyncWebSocket with Config.
+   * @param connection - &id:oatpp::data::stream::IOStream;.
+   * @param config - &id:oatpp::websocket::Config;.
+   * @return - `std::shared_ptr` to AsyncWebSocket.
+   */
+  static std::shared_ptr<AsyncWebSocket> createShared(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, Config config) {
+    return std::make_shared<AsyncWebSocket>(connection, config);
+  }
 
   /**
    * Create shared AsyncWebSocket.
