@@ -195,6 +195,14 @@ public:
   }
 
   /**
+   * Get socket event listener
+   * @return - &l:AsyncWebSocket::Listener;.
+   */
+  std::shared_ptr<Listener> getListener() {
+    return m_listener;
+  }
+
+  /**
    * Start listening Coroutine. <br>
    * Read incoming frames and call corresponding methods of listener.
    * See &l:AsyncWebSocket::setListener ();.

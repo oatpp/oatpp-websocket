@@ -165,6 +165,14 @@ public:
   }
 
   /**
+   * Get socket event listener
+   * @return - &l:WebSocket::Listener;.
+   */
+  std::shared_ptr<Listener> getListener() {
+    return m_listener;
+  }
+
+  /**
    * Read one frame from connection and call corresponding methods of listener. <br>
    * *Use this method if you know what you are doing.*
    * @param frameHeader - &id:oatpp::websocket::Frame::Header;.
