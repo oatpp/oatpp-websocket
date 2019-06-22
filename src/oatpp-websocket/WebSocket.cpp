@@ -24,17 +24,28 @@
 
 #include "WebSocket.hpp"
 
+#include "./Utils.hpp"
+
 #include <arpa/inet.h>
 
 namespace oatpp { namespace websocket {
 
-WebSocket::WebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, bool maskOutgoingMessages)
-  : m_connection(connection)
-  , m_maskOutgoingMessages(maskOutgoingMessages)
+WebSocket::WebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, Config config)
+  : m_config(config)
+  , m_connection(connection)
   , m_listener(nullptr)
   , m_lastOpcode(-1)
   , m_listening(false)
 {}
+
+WebSocket::WebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, bool maskOutgoingMessages)
+  : m_connection(connection)
+  , m_listener(nullptr)
+  , m_lastOpcode(-1)
+  , m_listening(false)
+{
+  m_config.maskOutgoingMessages = maskOutgoingMessages;
+}
 
 bool WebSocket::checkForContinuation(const Frame::Header& frameHeader) {
   if(m_lastOpcode == Frame::OPCODE_TEXT || m_lastOpcode == Frame::OPCODE_BINARY) {
@@ -130,12 +141,12 @@ void WebSocket::readPayload(const Frame::Header& frameHeader, oatpp::data::strea
     throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::readPayload()]: Invalid payloadLength. See RFC-6455, section-5.5.");
   }
   
-  v_char8 buffer[oatpp::data::buffer::IOBuffer::BUFFER_SIZE];
+  v_char8 buffer[m_config.readBufferSize];
   oatpp::data::v_io_size progress = 0;
   
   while (progress < frameHeader.payloadLength) {
     
-    oatpp::data::v_io_size desiredSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
+    oatpp::data::v_io_size desiredSize = m_config.readBufferSize;
     if(desiredSize > frameHeader.payloadLength - progress) {
       desiredSize = frameHeader.payloadLength - progress;
     }
@@ -286,7 +297,7 @@ void WebSocket::sendFrameHeader(Frame::Header& frameHeader, bool fin, v_word8 op
   frameHeader.rsv2 = false;
   frameHeader.rsv3 = false;
   frameHeader.opcode = opcode;
-  frameHeader.hasMask = m_maskOutgoingMessages;
+  frameHeader.hasMask = m_config.maskOutgoingMessages;
   frameHeader.payloadLength = messageSize;
   
   if(frameHeader.hasMask) {

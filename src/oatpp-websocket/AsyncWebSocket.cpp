@@ -30,13 +30,22 @@
 
 namespace oatpp { namespace websocket {
 
-AsyncWebSocket::AsyncWebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, bool maskOutgoingMessages)
-  : m_connection(connection)
-  , m_maskOutgoingMessages(maskOutgoingMessages)
+AsyncWebSocket::AsyncWebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, Config config)
+  : m_config(config)
+  , m_connection(connection)
   , m_listener(nullptr)
   , m_lastOpcode(-1)
   , m_listening(false)
 {}
+
+AsyncWebSocket::AsyncWebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, bool maskOutgoingMessages)
+  : m_connection(connection)
+  , m_listener(nullptr)
+  , m_lastOpcode(-1)
+  , m_listening(false)
+{
+  m_config.maskOutgoingMessages = maskOutgoingMessages;
+}
 
 bool AsyncWebSocket::checkForContinuation(const Frame::Header& frameHeader) {
   if(m_lastOpcode == Frame::OPCODE_TEXT || m_lastOpcode == Frame::OPCODE_BINARY) {
@@ -237,7 +246,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readPayloadAsync(const std::share
       , m_frameHeader(frameHeader)
       , m_shortMessageStream(shortMessageStream)
       , m_listener(listener)
-      , m_buffer(new v_char8[oatpp::data::buffer::IOBuffer::BUFFER_SIZE])
+      , m_buffer(new v_char8[m_socket->m_config.readBufferSize])
       , m_progress(0)
     {}
     
@@ -249,7 +258,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readPayloadAsync(const std::share
       
       if(m_progress < m_frameHeader->payloadLength) {
         
-        oatpp::data::v_io_size desiredSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
+        oatpp::data::v_io_size desiredSize = m_socket->m_config.readBufferSize;
         if(desiredSize > m_frameHeader->payloadLength - m_progress) {
           desiredSize = m_frameHeader->payloadLength - m_progress;
         }
@@ -461,7 +470,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::sendFrameHeaderAsync(const std::s
   frameHeader->rsv2 = false;
   frameHeader->rsv3 = false;
   frameHeader->opcode = opcode;
-  frameHeader->hasMask = m_maskOutgoingMessages;
+  frameHeader->hasMask = m_config.maskOutgoingMessages;
   frameHeader->payloadLength = messageSize;
 
   if(frameHeader->hasMask) {
