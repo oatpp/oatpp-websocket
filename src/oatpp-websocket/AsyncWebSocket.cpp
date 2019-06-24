@@ -30,7 +30,7 @@
 
 namespace oatpp { namespace websocket {
 
-AsyncWebSocket::AsyncWebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, Config config)
+AsyncWebSocket::AsyncWebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, const Config& config)
   : m_config(config)
   , m_connection(connection)
   , m_listener(nullptr)
@@ -45,6 +45,10 @@ AsyncWebSocket::AsyncWebSocket(const std::shared_ptr<oatpp::data::stream::IOStre
   , m_listening(false)
 {
   m_config.maskOutgoingMessages = maskOutgoingMessages;
+}
+
+void AsyncWebSocket::setConfig(const Config& config) {
+  m_config = config;
 }
 
 bool AsyncWebSocket::checkForContinuation(const Frame::Header& frameHeader) {

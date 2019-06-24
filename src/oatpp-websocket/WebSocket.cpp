@@ -30,7 +30,7 @@
 
 namespace oatpp { namespace websocket {
 
-WebSocket::WebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, Config config)
+WebSocket::WebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, const Config& config)
   : m_config(config)
   , m_connection(connection)
   , m_listener(nullptr)
@@ -45,6 +45,10 @@ WebSocket::WebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& conne
   , m_listening(false)
 {
   m_config.maskOutgoingMessages = maskOutgoingMessages;
+}
+
+void WebSocket::setConfig(const Config& config) {
+  m_config = config;
 }
 
 bool WebSocket::checkForContinuation(const Frame::Header& frameHeader) {

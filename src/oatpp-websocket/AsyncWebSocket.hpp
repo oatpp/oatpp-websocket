@@ -141,7 +141,7 @@ public:
    * @param connection - &id:oatpp::data::stream::IOStream;.
    * @param config - &id:oatpp::websocket::Config;.
    */
-  AsyncWebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, Config config);
+  AsyncWebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, const Config& config);
 
   /**
    * Constructor.
@@ -164,7 +164,7 @@ public:
    * @param config - &id:oatpp::websocket::Config;.
    * @return - `std::shared_ptr` to AsyncWebSocket.
    */
-  static std::shared_ptr<AsyncWebSocket> createShared(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, Config config) {
+  static std::shared_ptr<AsyncWebSocket> createShared(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, const Config& config) {
     return std::make_shared<AsyncWebSocket>(connection, config);
   }
 
@@ -177,6 +177,12 @@ public:
   static std::shared_ptr<AsyncWebSocket> createShared(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, bool maskOutgoingMessages) {
     return std::make_shared<AsyncWebSocket>(connection, maskOutgoingMessages);
   }
+
+  /**
+   * Set WebSocket config.
+   * @param config - &id:oatpp::websocket::Config;.
+   */
+  void setConfig(const Config& config);
 
   /**
    * Get socket connection.
