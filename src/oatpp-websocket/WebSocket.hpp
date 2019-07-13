@@ -50,6 +50,11 @@ public:
   public:
 
     /**
+     * Default virtual destructor.
+     */
+    virtual ~Listener() = default;
+
+    /**
      * Called when "ping" frame received
      * @param socket - &id:oatpp::websocket::WebSocket;.
      * @param message - message text; &id:oatpp::String;.

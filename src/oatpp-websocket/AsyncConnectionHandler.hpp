@@ -62,10 +62,9 @@ public:
   public:
 
     /**
-     * Called when socket is created. <br>
-     * **This method should not block**.
-     * @param socket - &id:oatpp::websocket::AsyncWebSocket;.
+     * Default virtual destructor.
      */
+    virtual ~SocketInstanceListener() = default;
 
     /**
      * Called when socket is created. <br>
