@@ -51,11 +51,13 @@ std::shared_ptr<Handshaker::OutgoingResponse> Handshaker::serversideHandshake(co
   auto connection = getHeader(requestHeaders, oatpp::web::protocol::http::Header::CONNECTION);
   auto key = getHeader(requestHeaders, "Sec-WebSocket-Key");
   
-  if(upgrade && connection && version && key && key->getSize() > 0 && upgrade == "websocket") {
+  if(upgrade && connection && version && key && key->getSize() > 0 &&
+     oatpp::base::StrBuffer::equalsCI("websocket", upgrade->getData(), upgrade->getSize())) {
 
-    auto connectionValueSet = oatpp::web::protocol::http::Parser::parseHeaderValueSet(connection, ',');
+    oatpp::web::protocol::http::HeaderValueData connectionValueSet;
+    oatpp::web::protocol::http::Parser::parseHeaderValueData(connectionValueSet, connection, ',');
 
-    if(connectionValueSet.find(oatpp::web::protocol::http::Header::Value::CONNECTION_UPGRADE) != connectionValueSet.end()) {
+    if(connectionValueSet.tokens.find(oatpp::web::protocol::http::Header::Value::CONNECTION_UPGRADE) != connectionValueSet.tokens.end()) {
 
       if (version == "13") {
 
