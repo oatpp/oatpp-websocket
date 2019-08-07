@@ -35,16 +35,6 @@ namespace oatpp { namespace websocket {
  * Collection of utility methods.
  */
 class Utils {
-private:
-
-#ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
-  static thread_local std::mt19937 RANDOM_GENERATOR;
-  static thread_local std::uniform_int_distribution<size_t> RANDOM_DISTRIBUTION;
-#else
-  static std::mt19937 RANDOM_GENERATOR;
-  static std::uniform_int_distribution<size_t> RANDOM_DISTRIBUTION;
-  static oatpp::concurrency::SpinLock RANDOM_LOCK;
-#endif
 public:
   /**
    * Generate random mask for frame.
