@@ -26,7 +26,11 @@
 
 #include "./Utils.hpp"
 
+#if defined(WIN32) || defined(_WIN32)
+#include <WinSock2.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 namespace oatpp { namespace websocket {
 
@@ -145,7 +149,7 @@ void WebSocket::readPayload(const Frame::Header& frameHeader, oatpp::data::strea
     throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::readPayload()]: Invalid payloadLength. See RFC-6455, section-5.5.");
   }
   
-  v_char8 buffer[m_config.readBufferSize];
+  std::unique_ptr<v_char8> buffer(new v_char8[m_config.readBufferSize]);
   oatpp::data::v_io_size progress = 0;
   
   while (progress < frameHeader.payloadLength) {
@@ -155,25 +159,25 @@ void WebSocket::readPayload(const Frame::Header& frameHeader, oatpp::data::strea
       desiredSize = frameHeader.payloadLength - progress;
     }
     
-    auto res = m_connection->read(buffer, desiredSize);
+    auto res = m_connection->read(buffer.get(), desiredSize);
     
     if(res > 0) {
       
       if(frameHeader.hasMask) {
-        v_char8 decoded[res];
+		  std::unique_ptr<v_char8> decoded(new v_char8[res]);
         for(v_int32 i = 0; i < res; i ++) {
-          decoded[i] = buffer[i] ^ frameHeader.mask[(i + progress) % 4];
+          decoded.get()[i] = buffer.get()[i] ^ frameHeader.mask[(i + progress) % 4];
         }
         if(shortMessageStream) {
-          shortMessageStream->write(decoded, res);
+          shortMessageStream->write(decoded.get(), res);
         } else if(m_listener) {
-          m_listener->readMessage(*this, frameHeader.opcode, decoded, res);
+          m_listener->readMessage(*this, frameHeader.opcode, decoded.get(), res);
         }
       } else {
         if(shortMessageStream) {
-          shortMessageStream->write(buffer, res);
+          shortMessageStream->write(buffer.get(), res);
         } else if(m_listener) {
-          m_listener->readMessage(*this, frameHeader.opcode, buffer, res);
+          m_listener->readMessage(*this, frameHeader.opcode, buffer.get(), res);
         }
       }
       progress += res;
@@ -317,11 +321,11 @@ bool WebSocket::sendOneFrame(bool fin, v_word8 opcode, const oatpp::String& mess
     sendFrameHeader(frameHeader, fin, opcode, message->getSize());
     oatpp::data::v_io_size res;
     if(frameHeader.hasMask) {
-      v_char8 encoded[message->getSize()];
+		std::unique_ptr<v_char8> encoded(new v_char8[message->getSize()]);
       for(v_int32 i = 0; i < message->getSize(); i ++) {
-        encoded[i] = message->getData()[i] ^ frameHeader.mask[i % 4];
+        encoded.get()[i] = message->getData()[i] ^ frameHeader.mask[i % 4];
       }
-      res = oatpp::data::stream::writeExactSizeData(m_connection.get(), encoded, message->getSize());
+      res = oatpp::data::stream::writeExactSizeData(m_connection.get(), encoded.get(), message->getSize());
     } else {
       res = oatpp::data::stream::writeExactSizeData(m_connection.get(), message->getData(), message->getSize());
     }

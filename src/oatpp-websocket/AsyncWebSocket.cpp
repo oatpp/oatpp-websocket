@@ -26,7 +26,11 @@
 
 #include "./Utils.hpp"
 
+#if defined(WIN32) || defined(_WIN32)
+#include <WinSock2.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 namespace oatpp { namespace websocket {
 
@@ -279,18 +283,18 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readPayloadAsync(const std::share
       if(readResult > 0) {
       
         if(m_frameHeader->hasMask) {
-          v_char8 decoded[readResult];
+		  std::unique_ptr<v_char8> decoded(new v_char8[readResult]);
           for(v_int32 i = 0; i < readResult; i ++) {
-            decoded[i] = m_buffer[i] ^ m_frameHeader->mask[(i + m_progress) % 4];
+            decoded.get()[i] = m_buffer[i] ^ m_frameHeader->mask[(i + m_progress) % 4];
           }
           
           m_progress += readResult;
           
           if(m_shortMessageStream) {
             /* this is RAM stream. Non-blocking call */
-            m_shortMessageStream->write(decoded, readResult);
+            m_shortMessageStream->write(decoded.get(), readResult);
           } else if(m_listener) {
-            return m_listener->readMessage(m_socket, m_frameHeader->opcode, decoded, readResult).next(yieldTo(&ReadPayloadCoroutine::act));
+            return m_listener->readMessage(m_socket, m_frameHeader->opcode, decoded.get(), readResult).next(yieldTo(&ReadPayloadCoroutine::act));
           }
           
         } else {

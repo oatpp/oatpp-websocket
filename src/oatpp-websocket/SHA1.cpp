@@ -25,7 +25,11 @@
 #include <iomanip>
 #include <fstream>
 
+#if defined(WIN32) || defined(_WIN32)
+#include <WinSock2.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 namespace oatpp { namespace websocket {
 
