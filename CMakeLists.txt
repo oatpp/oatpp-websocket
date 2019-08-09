@@ -27,6 +27,9 @@ option(OATPP_INSTALL "Install module binaries" ON)
 
 set(OATPP_MODULES_LOCATION "INSTALLED" CACHE STRING "Location where to find oatpp modules. can be [INSTALLED|EXTERNAL|CUSTOM]")
 
+if(MSVC)
+    add_compile_options(/vmg /wd4996 /experimental:preprocessor)
+endif(MSVC)
 
 ###################################################################################################
 ## get oatpp main module in specified location
