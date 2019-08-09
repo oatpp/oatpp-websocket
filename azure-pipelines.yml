@@ -45,3 +45,25 @@ jobs:
           make test ARGS="-V"
         displayName: 'Test'
         workingDirectory: build
+
+  - job: windows
+    displayName: 'Build - Windows'
+    continueOnError: false
+    pool:
+      vmImage: 'windows-latest'
+    workspace:
+      clean: all
+    steps:
+      - script: |
+          MD build
+      - task: CMake@1
+      - script: |
+          cmake -DOATPP_MODULES_LOCATION=EXTERNAL ..
+          cmake --build .
+        displayName: 'CMake'
+        workingDirectory: build
+
+      - script: |
+          module-tests.exe
+        displayName: 'Test'
+        workingDirectory: build\test\Debug\
