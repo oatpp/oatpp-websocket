@@ -21,16 +21,15 @@
  */
 
 #include "SHA1.hpp"
+
 #include <sstream>
 #include <iomanip>
 #include <fstream>
 
 #if defined(WIN32) || defined(_WIN32)
-//#include <io.h>
-//#include <WinSock2.h>
-//#include <WS2tcpip.h>
+  #include <WinSock2.h>
 #else
-#include <arpa/inet.h>
+  #include <arpa/inet.h>
 #endif
 
 namespace oatpp { namespace websocket {
