@@ -19,7 +19,7 @@ jobs:
         displayName: 'checkout oatpp'
         workingDirectory: build
       - script: |
-          cmake ..
+          cmake
           sudo make install
         displayName: 'build oatpp'
         workingDirectory: build/oatpp
