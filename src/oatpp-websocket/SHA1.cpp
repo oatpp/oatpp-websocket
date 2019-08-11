@@ -26,9 +26,9 @@
 #include <fstream>
 
 #if defined(WIN32) || defined(_WIN32)
-#include <io.h>
-#include <WinSock2.h>
-#include <WS2tcpip.h>
+//#include <io.h>
+//#include <WinSock2.h>
+//#include <WS2tcpip.h>
 #else
 #include <arpa/inet.h>
 #endif

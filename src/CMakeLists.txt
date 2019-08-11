@@ -21,10 +21,6 @@ add_library(${OATPP_THIS_MODULE_NAME}
         oatpp-websocket/WebSocket.hpp
 )
 
-if(MSVC)
-    target_link_libraries(${OATPP_THIS_MODULE_NAME} PUBLIC wsock32 ws2_32)
-endif(MSVC)
-
 set_target_properties(${OATPP_THIS_MODULE_NAME} PROPERTIES
         CXX_STANDARD 11
         CXX_EXTENSIONS OFF
