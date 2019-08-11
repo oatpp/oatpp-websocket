@@ -16,13 +16,14 @@ jobs:
           mkdir build
       - script: |
           git clone https://github.com/oatpp/oatpp
-        displayName: 'checkout oatpp'
+          mkdir -p oatpp/build
+        displayName: 'Checkout oatpp'
         workingDirectory: build
       - script: |
-          cmake
+          cmake ..
           sudo make install
-        displayName: 'build oatpp'
-        workingDirectory: build/oatpp
+        displayName: 'Build oatpp'
+        workingDirectory: build/oatpp/build
       - task: CMake@1
       - script: |
           cmake ..
