@@ -77,9 +77,9 @@ jobs:
           MD build
       - script: |
           git clone https://github.com/oatpp/oatpp
-          dir
           MD oatpp\build
         displayName: 'Checkout - oatpp'
+        workingDirectory: build
       - script: |
           cmake ..
           cmake --build . --target INSTALL
