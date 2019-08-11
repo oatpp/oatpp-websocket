@@ -1,10 +1,3 @@
-if (MSVC)
-    # The MSVC compiler doesnt comply to c99 thus the OATPP_MACRO_HAS_ARGS macro always expands to 1
-    # This screws up the DTO_FIELD and ENDPOINT macros. To force MSVC to c99 compliant mode we need to activate this
-    # experimental switch. However, we can't enable it globally since the Windows-SDK isn't prepared for this and
-    # throws a whole bunch of errors.
-    add_compile_options(/experimental:preprocessor)
-endif(MSVC)
 
 add_library(${OATPP_THIS_MODULE_NAME}
         oatpp-websocket/AsyncConnectionHandler.cpp
@@ -27,6 +20,10 @@ add_library(${OATPP_THIS_MODULE_NAME}
         oatpp-websocket/WebSocket.cpp
         oatpp-websocket/WebSocket.hpp
 )
+
+if(MSVC)
+    target_link_libraries(${OATPP_THIS_MODULE_NAME} PUBLIC wsock32 ws2_32)
+endif(MSVC)
 
 set_target_properties(${OATPP_THIS_MODULE_NAME} PROPERTIES
         CXX_STANDARD 11
