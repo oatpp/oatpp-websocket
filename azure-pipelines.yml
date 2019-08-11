@@ -77,7 +77,7 @@ jobs:
           MD build
       - script: |
           git clone https://github.com/oatpp/oatpp
-          MD oatpp/build
+          MD oatpp\build
         displayName: 'Checkout - oatpp'
       - script: |
           cmake ..
