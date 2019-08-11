@@ -14,9 +14,18 @@ jobs:
     steps:
       - script: |
           mkdir build
+      - script: |
+          git clone https://github.com/oatpp/oatpp
+        displayName: 'checkout oatpp'
+        workingDirectory: build
+      - script: |
+          cmake ..
+          sudo make install
+        displayName: 'build oatpp'
+        workingDirectory: build/oatpp
       - task: CMake@1
       - script: |
-          cmake -DOATPP_MODULES_LOCATION=EXTERNAL ..
+          cmake ..
           make
         displayName: 'CMake'
         workingDirectory: build
@@ -24,46 +33,46 @@ jobs:
           make test ARGS="-V"
         displayName: 'Test'
         workingDirectory: build
-
-  - job: macOS
-    displayName: 'Build - macOS-10.13'
-    continueOnError: false
-    pool:
-      vmImage: 'macOS-10.13'
-    workspace:
-      clean: all
-    steps:
-      - script: |
-          mkdir build
-      - task: CMake@1
-      - script: |
-          cmake -DOATPP_MODULES_LOCATION=EXTERNAL ..
-          make
-        displayName: 'CMake'
-        workingDirectory: build
-      - script: |
-          make test ARGS="-V"
-        displayName: 'Test'
-        workingDirectory: build
-
-  - job: windows
-    displayName: 'Build - Windows'
-    continueOnError: false
-    pool:
-      vmImage: 'windows-latest'
-    workspace:
-      clean: all
-    steps:
-      - script: |
-          MD build
-      - task: CMake@1
-      - script: |
-          cmake -DOATPP_MODULES_LOCATION=EXTERNAL ..
-          cmake --build .
-        displayName: 'CMake'
-        workingDirectory: build
-
-      - script: |
-          module-tests.exe
-        displayName: 'Test'
-        workingDirectory: build\test\Debug\
+#
+#  - job: macOS
+#    displayName: 'Build - macOS-10.13'
+#    continueOnError: false
+#    pool:
+#      vmImage: 'macOS-10.13'
+#    workspace:
+#      clean: all
+#    steps:
+#      - script: |
+#          mkdir build
+#      - task: CMake@1
+#      - script: |
+#          cmake -DOATPP_MODULES_LOCATION=EXTERNAL ..
+#          make
+#        displayName: 'CMake'
+#        workingDirectory: build
+#      - script: |
+#          make test ARGS="-V"
+#        displayName: 'Test'
+#        workingDirectory: build
+#
+#  - job: windows
+#    displayName: 'Build - Windows'
+#    continueOnError: false
+#    pool:
+#      vmImage: 'windows-latest'
+#    workspace:
+#      clean: all
+#    steps:
+#      - script: |
+#          MD build
+#      - task: CMake@1
+#      - script: |
+#          cmake -DOATPP_MODULES_LOCATION=EXTERNAL ..
+#          cmake --build .
+#        displayName: 'CMake'
+#        workingDirectory: build
+#
+#      - script: |
+#          module-tests.exe
+#        displayName: 'Test'
+#        workingDirectory: build\test\Debug\
