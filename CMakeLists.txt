@@ -103,12 +103,6 @@ if(UNIX AND NOT APPLE)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 endif()
 
-if (MSVC)
-    # Add compilerswitch to allow pointer-to-members
-    # https://docs.microsoft.com/en-us/cpp/preprocessor/pointers-to-members?view=vs-2019
-    add_compile_options(/vmg /wd4996)
-endif(MSVC)
-
 include(cmake/module-utils.cmake)
 
 add_subdirectory("src")
