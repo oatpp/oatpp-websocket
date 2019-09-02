@@ -38,12 +38,6 @@ namespace oatpp { namespace websocket {
  */
 class AsyncConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
 public:
-  /**
-   * Default threads number for &id:oatpp::async::Executor;. <br>
-   * This value is set from `OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT` macro.
-   */
-  static const v_int32 THREAD_NUM_DEFAULT;
-public:
 
   /**
    * Listener for new websocket instances.
@@ -92,7 +86,7 @@ public:
    * Will create &id:oatpp::async::Executor;.
    * @param threadCount - number of threads for &id:oatpp::async::Executor;.
    */
-  AsyncConnectionHandler(v_int32 threadCount = THREAD_NUM_DEFAULT);
+  AsyncConnectionHandler(v_int32 threadCount = oatpp::async::Executor::VALUE_SUGGESTED);
 
   /**
    * Constructor. With &id:oatpp::async::Executor;.
@@ -107,7 +101,7 @@ public:
    * @param threadCount - number of threads for &id:oatpp::async::Executor;.
    * @return - `std::shared_ptr` to AsyncConnectionHandler.
    */
-  static std::shared_ptr<AsyncConnectionHandler> createShared(v_int32 threadCount = THREAD_NUM_DEFAULT);
+  static std::shared_ptr<AsyncConnectionHandler> createShared(v_int32 threadCount = oatpp::async::Executor::VALUE_SUGGESTED);
 
   /**
    * Create shared AsyncConnectionHandler with &id:oatpp::async::Executor;.

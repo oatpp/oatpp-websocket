@@ -26,8 +26,6 @@
 
 namespace oatpp { namespace websocket {
 
-const v_int32 AsyncConnectionHandler::THREAD_NUM_DEFAULT = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT;
-
 AsyncConnectionHandler::AsyncConnectionHandler(v_int32 threadCount)
   : m_executor(std::make_shared<oatpp::async::Executor>(threadCount))
   , m_listener(nullptr)
