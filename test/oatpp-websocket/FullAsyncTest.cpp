@@ -206,11 +206,11 @@ public:
     return finish();
   }
 
-  Action handleError(const std::shared_ptr<const Error>& error) override {
+  Action handleError(Error* error) override {
     if(error) {
       OATPP_LOGD("Client", "Error. !!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!! %s", error->what());
     }
-    return propagateError();
+    return error;
   }
 
 };

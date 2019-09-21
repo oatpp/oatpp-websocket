@@ -91,7 +91,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readFrameHeaderAsync(const std::s
     }
     
     Action act() override {
-      return oatpp::data::stream::readExactSizeDataAsyncInline(this, m_connection.get(), m_inlineData, yieldTo(&ReadFrameCoroutine::onBbRead));
+      return oatpp::data::stream::readExactSizeDataAsyncInline(m_connection.get(), m_inlineData, yieldTo(&ReadFrameCoroutine::onBbRead));
     }
     
     Action onBbRead() {
@@ -118,7 +118,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readFrameHeaderAsync(const std::s
     }
     
     Action readLen() {
-      return oatpp::data::stream::readExactSizeDataAsyncInline(this, m_connection.get(), m_inlineData, yieldTo(&ReadFrameCoroutine::onLenRead));
+      return oatpp::data::stream::readExactSizeDataAsyncInline(m_connection.get(), m_inlineData, yieldTo(&ReadFrameCoroutine::onLenRead));
     }
     
     Action onLenRead() {
@@ -139,7 +139,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readFrameHeaderAsync(const std::s
     }
     
     Action readMask() {
-      return oatpp::data::stream::readExactSizeDataAsyncInline(this, m_connection.get(), m_inlineData, finish());
+      return oatpp::data::stream::readExactSizeDataAsyncInline(m_connection.get(), m_inlineData, finish());
     }
     
   };
@@ -177,7 +177,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::writeFrameHeaderAsync(const std::
     }
     
     Action act() override {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_connection.get(), m_inlineData, yieldTo(&WriteFrameCoroutine::onBbWritten));
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_connection.get(), m_inlineData, yieldTo(&WriteFrameCoroutine::onBbWritten));
     }
     
     Action onBbWritten() {
@@ -195,7 +195,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::writeFrameHeaderAsync(const std::
     }
     
     Action writeMessageLen() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_connection.get(), m_inlineData, yieldTo(&WriteFrameCoroutine::onLenWritten));
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_connection.get(), m_inlineData, yieldTo(&WriteFrameCoroutine::onLenWritten));
     }
     
     Action onLenWritten() {
@@ -207,7 +207,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::writeFrameHeaderAsync(const std::
     }
     
     Action writeMask() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_connection.get(), m_inlineData, finish());
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_connection.get(), m_inlineData, finish());
     }
     
   };
@@ -273,7 +273,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readPayloadAsync(const std::share
     }
     
     Action readData() {
-      return oatpp::data::stream::readSomeDataAsyncInline(this, m_connection.get(), m_inlineData, yieldTo(&ReadPayloadCoroutine::onDataRead));
+      return oatpp::data::stream::readSomeDataAsyncInline(m_connection.get(), m_inlineData, yieldTo(&ReadPayloadCoroutine::onDataRead));
     }
     
     Action onDataRead() {
@@ -446,8 +446,8 @@ oatpp::async::CoroutineStarter AsyncWebSocket::listenAsync() {
       return finish();
     }
     
-    Action handleError(const std::shared_ptr<const Error>& error) override {
-      return propagateError();
+    Action handleError(Error* error) override {
+      return error;
     }
     
   };
@@ -526,7 +526,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::sendOneFrameAsync(bool fin, v_wor
     }
     
     Action writeMessage() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_socket->m_connection.get(), m_inlineData, finish());
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_socket->m_connection.get(), m_inlineData, finish());
     }
     
   };
