@@ -91,7 +91,6 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Connector::Connect
       m_connection = connection;
       
       auto connectionHandle = std::make_shared<oatpp::web::client::HttpRequestExecutor::HttpConnectionHandle>(m_connection);
-      m_handshakeHeaders.clear();
       Handshaker::clientsideHandshake(m_handshakeHeaders);
 
       return m_requestExecutor.executeAsync("GET", m_path, m_handshakeHeaders, nullptr, connectionHandle).callbackTo(&ConnectCoroutine::onServerResponse);

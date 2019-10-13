@@ -33,26 +33,14 @@ namespace oatpp { namespace websocket {
   
 const char* const Handshaker::MAGIC_UUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
   
-oatpp::String Handshaker::getHeader(const Headers& headers, const oatpp::data::share::StringKeyLabelCI_FAST& key) {
-  
-  auto it = headers.find(key);
-  if(it != headers.end()) {
-    return it->second.toString();
-  }
-  
-  return nullptr;
-  
-}
-  
 std::shared_ptr<Handshaker::OutgoingResponse> Handshaker::serversideHandshake(const Headers& requestHeaders, const std::shared_ptr<ConnectionHandler>& connectionUpgradeHandler) {
   
-  auto version = getHeader(requestHeaders, "Sec-WebSocket-Version");
-  auto upgrade = getHeader(requestHeaders, oatpp::web::protocol::http::Header::UPGRADE);
-  auto connection = getHeader(requestHeaders, oatpp::web::protocol::http::Header::CONNECTION);
-  auto key = getHeader(requestHeaders, "Sec-WebSocket-Key");
+  auto version = requestHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("Sec-WebSocket-Version");
+  auto upgrade = requestHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI_FAST>(oatpp::web::protocol::http::Header::UPGRADE);
+  auto connection = requestHeaders.get(oatpp::web::protocol::http::Header::CONNECTION);
+  auto key = requestHeaders.get("Sec-WebSocket-Key");
   
-  if(upgrade && connection && version && key && key->getSize() > 0 &&
-     oatpp::base::StrBuffer::equalsCI("websocket", upgrade->getData(), upgrade->getSize())) {
+  if(upgrade && connection && version && key && key->getSize() > 0 && upgrade == "websocket") {
 
     oatpp::web::protocol::http::HeaderValueData connectionValueSet;
     oatpp::web::protocol::http::Parser::parseHeaderValueData(connectionValueSet, connection, ',');
@@ -92,10 +80,10 @@ std::shared_ptr<Handshaker::OutgoingResponse> Handshaker::serversideHandshake(co
 }
   
 void Handshaker::clientsideHandshake(Headers& requestHeaders) {
-  requestHeaders[oatpp::web::protocol::http::Header::UPGRADE] = "websocket";
-  requestHeaders[oatpp::web::protocol::http::Header::CONNECTION] = oatpp::web::protocol::http::Header::Value::CONNECTION_UPGRADE;
-  requestHeaders["Sec-WebSocket-Version"] = "13";
-  requestHeaders["Sec-WebSocket-Key"] = Utils::generateKey();
+  requestHeaders.put(oatpp::web::protocol::http::Header::UPGRADE, "websocket");
+  requestHeaders.put(oatpp::web::protocol::http::Header::CONNECTION, oatpp::web::protocol::http::Header::Value::CONNECTION_UPGRADE);
+  requestHeaders.put("Sec-WebSocket-Version", "13");
+  requestHeaders.put("Sec-WebSocket-Key", Utils::generateKey());
 }
   
 v_int32 Handshaker::clientsideConfirmHandshake(const Headers& clientHandshakeHeaders, const std::shared_ptr<IncomingResponse>& serverResponse) {
@@ -104,17 +92,14 @@ v_int32 Handshaker::clientsideConfirmHandshake(const Headers& clientHandshakeHea
     
     auto& responseHeaders = serverResponse->getHeaders();
     
-    auto version = getHeader(responseHeaders, "Sec-WebSocket-Version");
-    auto upgrade = getHeader(responseHeaders, oatpp::web::protocol::http::Header::UPGRADE);
-    auto connection = getHeader(responseHeaders, oatpp::web::protocol::http::Header::CONNECTION);
-    auto websocketAccept = getHeader(responseHeaders, "Sec-WebSocket-Accept");
+    auto version = responseHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("Sec-WebSocket-Version");
+    auto upgrade = responseHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI_FAST>(oatpp::web::protocol::http::Header::UPGRADE);
+    auto connection = responseHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI_FAST>(oatpp::web::protocol::http::Header::CONNECTION);
+    auto websocketAccept = responseHeaders.get("Sec-WebSocket-Accept");
     
-    auto clientKey = getHeader(clientHandshakeHeaders, "Sec-WebSocket-Key");
+    auto clientKey = clientHandshakeHeaders.get("Sec-WebSocket-Key");
 
-    if(!version && upgrade && connection && websocketAccept && clientKey &&
-       oatpp::base::StrBuffer::equalsCI("websocket", upgrade->getData(), upgrade->getSize()) &&
-       oatpp::base::StrBuffer::equalsCI("upgrade", connection->getData(), connection->getSize()))
-    {
+    if(!version && upgrade && connection && websocketAccept && clientKey && upgrade == "websocket" && connection == "upgrade") {
       
       auto websocketKey = clientKey + MAGIC_UUID;
       SHA1 sha1;

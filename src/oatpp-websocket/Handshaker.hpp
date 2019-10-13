@@ -75,8 +75,6 @@ public:
   typedef oatpp::web::protocol::http::incoming::Response IncomingResponse;
   typedef oatpp::web::protocol::http::Headers Headers;
   typedef oatpp::network::server::ConnectionHandler ConnectionHandler;
-private:
-  static oatpp::String getHeader(const Headers& headers, const oatpp::data::share::StringKeyLabelCI_FAST& key);
 public:
 
   /**
