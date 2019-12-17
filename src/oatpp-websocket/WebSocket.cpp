@@ -184,7 +184,8 @@ void WebSocket::readPayload(const Frame::Header& frameHeader, oatpp::data::strea
       
     }else { // if res == 0 then probably stream handles read() error incorrectly. trow.
       
-      if(res == oatpp::data::IOError::RETRY || res == oatpp::data::IOError::WAIT_RETRY) {
+      if(res == oatpp::data::IOError::RETRY_READ || res == oatpp::data::IOError::WAIT_RETRY_READ ||
+         res == oatpp::data::IOError::RETRY_WRITE || res == oatpp::data::IOError::WAIT_RETRY_WRITE) {
         continue;
       }
       throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::readPayload()]: Invalid connection state.");
