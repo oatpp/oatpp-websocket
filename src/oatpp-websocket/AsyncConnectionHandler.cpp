@@ -86,7 +86,10 @@ void AsyncConnectionHandler::handleConnection(const std::shared_ptr<IOStream>& c
     }
     
   };
-  
+
+  connection->setInputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
+  connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
+
   m_executor->execute<SocketCoroutine>(connection, params, m_listener);
   
 }

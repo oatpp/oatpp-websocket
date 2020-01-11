@@ -122,14 +122,14 @@ public:
    * When all data of message is read, readMessage is called again with size == 0 to
    * indicate end of the message
    */
-  void readMessage(const WebSocket &socket, v_word8 opcode, p_char8 data, oatpp::data::v_io_size size) override {
+  void readMessage(const WebSocket &socket, v_word8 opcode, p_char8 data, oatpp::v_io_size size) override {
     if (size == 0) {
       auto wholeMessage = m_messageBuffer.toString();
       OATPP_LOGD(TAG, "Message='%s'", wholeMessage->c_str());
       socket.sendOneFrameText("Hello from oatpp! Your message was: " + wholeMessage);
       m_messageBuffer.clear();
     } else if (size > 0) {
-      m_messageBuffer.write(data, size);
+      m_messageBuffer.writeSimple(data, size);
     }
   };
 

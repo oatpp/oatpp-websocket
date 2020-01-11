@@ -85,7 +85,7 @@ public:
      * @param data - pointer to message data.
      * @param size - data size.
      */
-    virtual void readMessage(const WebSocket& socket, v_word8 opcode, p_char8 data, data::v_io_size size) = 0;
+    virtual void readMessage(const WebSocket& socket, v_word8 opcode, p_char8 data, oatpp::v_io_size size) = 0;
     
   };
   

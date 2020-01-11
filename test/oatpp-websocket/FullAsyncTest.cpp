@@ -32,11 +32,15 @@ namespace {
 class TestComponent {
 public:
 
-  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, serverExecutor)("ws-server-exec", [] {
+  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, httpServerExecutor)("http-server-exec", [] {
     return std::make_shared<oatpp::async::Executor>(4, 2);
   }());
 
-  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, clientExecutor)("ws-client-exec", [] {
+  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, wsServerExecutor)("ws-server-exec", [] {
+    return std::make_shared<oatpp::async::Executor>(4, 2);
+  }());
+
+  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, wsClientExecutor)("ws-client-exec", [] {
     return std::make_shared<oatpp::async::Executor>(4, 2);
   }());
 
@@ -65,8 +69,8 @@ public:
    */
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::server::ConnectionHandler>, serverConnectionHandler)([] {
     OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router); // get Router component
-    //OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
-    return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, 2);
+    OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor, "http-server-exec");
+    return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, executor);
   }());
 
   /**
@@ -130,7 +134,7 @@ public:
     return nullptr;
   }
 
-  CoroutineStarter readMessage(const std::shared_ptr<AsyncWebSocket>& socket, v_word8 opcode, p_char8 data, oatpp::data::v_io_size size) override {
+  CoroutineStarter readMessage(const std::shared_ptr<AsyncWebSocket>& socket, v_word8 opcode, p_char8 data, oatpp::v_io_size size) override {
     if(size == 0) {
       m_messageCounter ++;
       auto wholeMessage = m_messageBuffer.toString();
@@ -141,7 +145,7 @@ public:
         m_lastTick = tick;
       }
     } else if(size > 0) {
-      m_messageBuffer.write(data, size);
+      m_messageBuffer.writeSimple(data, size);
     }
     return nullptr;
   }
@@ -225,8 +229,9 @@ void FullAsyncTest::onRun() {
 
   TestComponent component;
 
-  OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, serverExecutor, "ws-server-exec");
-  OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, clientExecutor, "ws-client-exec");
+  OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, httpServerExecutor, "http-server-exec");
+  OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, wsServerExecutor, "ws-server-exec");
+  OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, wsClientExecutor, "ws-client-exec");
 
   oatpp::test::web::ClientServerTestRunner runner;
 
@@ -239,7 +244,7 @@ void FullAsyncTest::onRun() {
     /////////////////////////////////////////////////////////////////////////////////////
     // Create clients
 
-    v_int32 clients = 10000;
+    v_int32 clients = 1000;
     v_int32 messagesPerClient = 100;
 
     for(v_int32 i = 0; i < clients; i ++) {
@@ -262,11 +267,17 @@ void FullAsyncTest::onRun() {
 
   }, std::chrono::minutes(10));
 
-  serverExecutor->stop();
-  clientExecutor->stop();
+  httpServerExecutor->waitTasksFinished();
+  wsServerExecutor->waitTasksFinished();
+  wsClientExecutor->waitTasksFinished();
 
-  serverExecutor->join();
-  clientExecutor->join();
+  httpServerExecutor->stop();
+  wsServerExecutor->stop();
+  wsClientExecutor->stop();
+
+  httpServerExecutor->join();
+  wsServerExecutor->join();
+  wsClientExecutor->join();
 
 }
 

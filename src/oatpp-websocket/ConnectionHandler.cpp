@@ -79,6 +79,9 @@ void ConnectionHandler::handleConnection(const std::shared_ptr<IOStream>& connec
     }
     
   };
+
+  connection->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
+  connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
   
   /* Create working thread */
   std::thread thread(&Task::run, Task(connection, params, m_listener));

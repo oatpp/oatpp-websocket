@@ -110,11 +110,11 @@ public:
      * @param socket - &id:oatpp::websocket::AsyncWebSocket;.
      * @param opcode - &id:oatpp::websocket::Frame::OPCODE_TEXT; or &id:oatpp::websocket::Frame::OPCODE_BINARY;.
      * @param data - pointer to received data.
-     * @param size - data size. &id:oatpp::data::v_io_size;.
+     * @param size - data size. &id:oatpp::v_io_size;.
      * @return - &id:oatpp::async::CoroutineStarter;. <br>
      * *To ignore this event return nullptr.*
      */
-    virtual CoroutineStarter readMessage(const std::shared_ptr<AsyncWebSocket>& socket, v_word8 opcode, p_char8 data, data::v_io_size size) = 0;
+    virtual CoroutineStarter readMessage(const std::shared_ptr<AsyncWebSocket>& socket, v_word8 opcode, p_char8 data, oatpp::v_io_size size) = 0;
     
   };
   

@@ -227,7 +227,7 @@ SHA1::SHA1() {
 
 
 void SHA1::update(const oatpp::String &s) {
-  data::v_io_size progress = 0;
+  oatpp::v_io_size progress = 0;
   while (true) {
     
     auto readSize = BLOCK_BYTES - buffer.getSize();
@@ -235,7 +235,7 @@ void SHA1::update(const oatpp::String &s) {
       readSize = s->getSize() - progress;
     }
     
-    buffer.write(&s->getData()[progress], readSize);
+    buffer.writeSimple(&s->getData()[progress], readSize);
     progress += readSize;
     
     if (buffer.getSize() != BLOCK_BYTES) {
@@ -256,8 +256,8 @@ void SHA1::update(std::istream &is) {
     
     char sbuf[BLOCK_BYTES];
     
-      is.read(sbuf, (int)(BLOCK_BYTES - buffer.getSize()));
-    buffer.write(sbuf, (std::size_t)is.gcount());
+    is.read(sbuf, (int)(BLOCK_BYTES - buffer.getSize()));
+    buffer.writeSimple(sbuf, (std::size_t)is.gcount());
     
     if (buffer.getSize() != BLOCK_BYTES) {
       return;
@@ -281,10 +281,10 @@ oatpp::String SHA1::finalBinary() {
   uint64_t total_bits = (transforms * BLOCK_BYTES + buffer.getSize()) * 8;
   
   /* Padding */
-  buffer.writeChar(0x80);
+  buffer.writeCharSimple(0x80);
   size_t orig_size = (size_t)buffer.getSize();
   while (buffer.getSize() < BLOCK_BYTES) {
-    buffer.writeChar(0x00);
+    buffer.writeCharSimple(0x00);
   }
   
   uint32_t block[BLOCK_INTS];
@@ -306,7 +306,7 @@ oatpp::String SHA1::finalBinary() {
   oatpp::data::stream::ChunkedBuffer resultStream;
   for (size_t i = 0; i < sizeof(digest) / sizeof(digest[0]); i++) {
     uint32_t b = htonl(digest[i]);
-    resultStream.write(&b, 4);
+    resultStream.writeSimple(&b, 4);
   }
   
   /* Reset for next run */
