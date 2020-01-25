@@ -113,7 +113,7 @@ public:
     // DO NOTHING
   }
 
-  void onClose(const WebSocket &socket, v_word16 code, const oatpp::String &message) override {
+  void onClose(const WebSocket &socket, v_uint16 code, const oatpp::String &message) override {
     OATPP_LOGD(TAG, "Close frame received. Code=%hd, Message='%s'", code, message->c_str());
   }
 
@@ -122,7 +122,7 @@ public:
    * When all data of message is read, readMessage is called again with size == 0 to
    * indicate end of the message
    */
-  void readMessage(const WebSocket &socket, v_word8 opcode, p_char8 data, oatpp::v_io_size size) override {
+  void readMessage(const WebSocket &socket, v_uint8 opcode, p_char8 data, oatpp::v_io_size size) override {
     if (size == 0) {
       auto wholeMessage = m_messageBuffer.toString();
       OATPP_LOGD(TAG, "Message='%s'", wholeMessage->c_str());

@@ -69,31 +69,31 @@ bool WebSocket::checkForContinuation(const Frame::Header& frameHeader) {
   
 void WebSocket::readFrameHeader(Frame::Header& frameHeader) const {
   
-  v_word16 bb;
+  v_uint16 bb;
   auto res = m_connection->readExactSizeDataSimple(&bb, 2);
   if(res != 2) {
     throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::readFrameHeader()]: Error reading frame header");
   }
   
-  v_word8 messageLen1;
+  v_uint8 messageLen1;
   Frame::unpackHeaderBits(ntohs(bb), frameHeader, messageLen1);
   
   if(messageLen1 < 126) {
     frameHeader.payloadLength = messageLen1;
   } else if(messageLen1 == 126) {
-    v_word16 messageLen2;
+    v_uint16 messageLen2;
     res = m_connection->readExactSizeDataSimple(&messageLen2, 2);
     if(res != 2) {
       throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::readFrameHeader()]: Error reading frame header. Reading payload length scenario 2.");
     }
     frameHeader.payloadLength = ntohs(messageLen2);
   } else if(messageLen1 == 127) {
-    v_word32 messageLen3[2];
+    v_uint32 messageLen3[2];
     res = m_connection->readExactSizeDataSimple(&messageLen3, 8);
     if(res != 8) {
       throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::readFrameHeader()]: Error reading frame header. Reading payload length scenario 3.");
     }
-    frameHeader.payloadLength = (((v_word64) ntohl(messageLen3[0])) << 32) | ntohl(messageLen3[1]);
+    frameHeader.payloadLength = (((v_uint64) ntohl(messageLen3[0])) << 32) | ntohl(messageLen3[1]);
   }
   
   if(frameHeader.hasMask) {
@@ -107,8 +107,8 @@ void WebSocket::readFrameHeader(Frame::Header& frameHeader) const {
   
 void WebSocket::writeFrameHeader(const Frame::Header& frameHeader) const {
 
-  v_word16 bb;
-  v_word8 messageLengthScenario;
+  v_uint16 bb;
+  v_uint8 messageLengthScenario;
   Frame::packHeaderBits(bb, frameHeader, messageLengthScenario);
   
   bb = htons(bb);
@@ -119,13 +119,13 @@ void WebSocket::writeFrameHeader(const Frame::Header& frameHeader) const {
   }
   
   if(messageLengthScenario == 2) {
-    v_word16 messageLen2 = htons(frameHeader.payloadLength);
+    v_uint16 messageLen2 = htons(frameHeader.payloadLength);
     res = m_connection->writeExactSizeDataSimple(&messageLen2, 2);
     if(res != 2) {
       throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::writeFrameHeader()]: Error writing frame header. Writing payload length scenario 2.");
     }
   } else if(messageLengthScenario == 3) {
-    v_word32 messageLen3[2];
+    v_uint32 messageLen3[2];
     messageLen3[0] = htonl(frameHeader.payloadLength >> 32);
     messageLen3[1] = htonl(frameHeader.payloadLength & 0xFFFFFFFF);
     res = m_connection->writeExactSizeDataSimple(&messageLen3, 8);
@@ -230,7 +230,7 @@ void WebSocket::handleFrame(const Frame::Header& frameHeader) {
         oatpp::data::stream::ChunkedBuffer messageStream;
         readPayload(frameHeader, &messageStream);
         if(m_listener) {
-          v_word16 code = 0;
+          v_uint16 code = 0;
           oatpp::String message;
           if(messageStream.getSize() >= 2) {
             messageStream.readSubstring(&code, 0, 2);
@@ -299,7 +299,7 @@ void WebSocket::stopListening() const {
   m_listening = false;
 }
   
-void WebSocket::sendFrameHeader(Frame::Header& frameHeader, bool fin, v_word8 opcode, v_int64 messageSize) const {
+void WebSocket::sendFrameHeader(Frame::Header& frameHeader, bool fin, v_uint8 opcode, v_int64 messageSize) const {
   frameHeader.fin = fin;
   frameHeader.rsv1 = false;
   frameHeader.rsv2 = false;
@@ -315,7 +315,7 @@ void WebSocket::sendFrameHeader(Frame::Header& frameHeader, bool fin, v_word8 op
   writeFrameHeader(frameHeader);
 }
   
-bool WebSocket::sendOneFrame(bool fin, v_word8 opcode, const oatpp::String& message) const {
+bool WebSocket::sendOneFrame(bool fin, v_uint8 opcode, const oatpp::String& message) const {
   Frame::Header frameHeader;
   if(message && message->getSize() > 0) {
     sendFrameHeader(frameHeader, fin, opcode, message->getSize());
@@ -338,7 +338,7 @@ bool WebSocket::sendOneFrame(bool fin, v_word8 opcode, const oatpp::String& mess
   return true;
 }
   
-void WebSocket::sendClose(v_word16 code, const oatpp::String& message) const {
+void WebSocket::sendClose(v_uint16 code, const oatpp::String& message) const {
   
   code = htons(code);
   

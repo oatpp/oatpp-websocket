@@ -101,7 +101,7 @@ public:
      * @return - &id:oatpp::async::CoroutineStarter;. <br>
      * *To ignore this event return nullptr.*
      */
-    virtual CoroutineStarter onClose(const std::shared_ptr<AsyncWebSocket>& socket, v_word16 code, const oatpp::String& message) = 0;
+    virtual CoroutineStarter onClose(const std::shared_ptr<AsyncWebSocket>& socket, v_uint16 code, const oatpp::String& message) = 0;
 
     /**
      * Called when "text" or "binary" frame received. <br>
@@ -114,7 +114,7 @@ public:
      * @return - &id:oatpp::async::CoroutineStarter;. <br>
      * *To ignore this event return nullptr.*
      */
-    virtual CoroutineStarter readMessage(const std::shared_ptr<AsyncWebSocket>& socket, v_word8 opcode, p_char8 data, oatpp::v_io_size size) = 0;
+    virtual CoroutineStarter readMessage(const std::shared_ptr<AsyncWebSocket>& socket, v_uint8 opcode, p_char8 data, oatpp::v_io_size size) = 0;
     
   };
   
@@ -238,7 +238,7 @@ public:
    * @param messageSize - size of the coming message.
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  CoroutineStarter sendFrameHeaderAsync(const std::shared_ptr<Frame::Header>& frameHeader, bool fin, v_word8 opcode, v_int64 messageSize);
+  CoroutineStarter sendFrameHeaderAsync(const std::shared_ptr<Frame::Header>& frameHeader, bool fin, v_uint8 opcode, v_int64 messageSize);
 
   /**
    * Send one frame message with custom fin and opcode.
@@ -247,7 +247,7 @@ public:
    * @param message - message text. &id:oatpp::String;.
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  CoroutineStarter sendOneFrameAsync(bool fin, v_word8 opcode, const oatpp::String& message);
+  CoroutineStarter sendOneFrameAsync(bool fin, v_uint8 opcode, const oatpp::String& message);
 
   /**
    * Send close frame.
@@ -255,7 +255,7 @@ public:
    * @param message - message text. &id:oatpp::String;.
    * @return - &id:oatpp::async::Action;.
    */
-  CoroutineStarter sendCloseAsync(v_word16 code, const oatpp::String& message);
+  CoroutineStarter sendCloseAsync(v_uint16 code, const oatpp::String& message);
 
   /**
    * Send close frame without message.

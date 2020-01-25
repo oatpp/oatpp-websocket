@@ -75,9 +75,9 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readFrameHeaderAsync(const std::s
     std::shared_ptr<Frame::Header> m_frameHeader;
   private:
     v_int32 m_lenType;
-    v_word16 m_bb;
-    v_word16 m_messageLen2;
-    v_word32 m_messageLen3 [2];
+    v_uint16 m_bb;
+    v_uint16 m_messageLen2;
+    v_uint32 m_messageLen3 [2];
   private:
     oatpp::data::buffer::InlineReadData m_inlineData;
   public:
@@ -96,7 +96,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readFrameHeaderAsync(const std::s
     
     Action onBbRead() {
       
-      v_word8 messageLen1;
+      v_uint8 messageLen1;
       Frame::unpackHeaderBits(ntohs(m_bb), *m_frameHeader, messageLen1);
       
       if(messageLen1 < 126) {
@@ -126,7 +126,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readFrameHeaderAsync(const std::s
       if(m_lenType == 2) {
         m_frameHeader->payloadLength = ntohs(m_messageLen2);
       } else if(m_lenType == 3) {
-        m_frameHeader->payloadLength = (((v_word64) ntohl(m_messageLen3[0])) << 32) | ntohl(m_messageLen3[1]);
+        m_frameHeader->payloadLength = (((v_uint64) ntohl(m_messageLen3[0])) << 32) | ntohl(m_messageLen3[1]);
       }
       
       if(m_frameHeader->hasMask) {
@@ -157,10 +157,10 @@ oatpp::async::CoroutineStarter AsyncWebSocket::writeFrameHeaderAsync(const std::
     std::shared_ptr<Frame::Header> m_frameHeader;
   private:
     v_int32 m_lenType;
-    v_word16 m_bb;
-    v_word16 m_messageLen2;
-    v_word32 m_messageLen3 [2];
-    v_word8 m_messageLengthScenario;
+    v_uint16 m_bb;
+    v_uint16 m_messageLen2;
+    v_uint32 m_messageLen3 [2];
+    v_uint8 m_messageLengthScenario;
   private:
     oatpp::data::buffer::InlineWriteData m_inlineData;
   public:
@@ -393,7 +393,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::handleFrameAsync(const std::share
     
     Action onClose() {
       if(m_listener) {
-        v_word16 code = 0;
+        v_uint16 code = 0;
         oatpp::String message;
         if(m_shortMessageStream->getSize() >= 2) {
           m_shortMessageStream->readSubstring(&code, 0, 2);
@@ -461,7 +461,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::listenAsync() {
 }
   
 oatpp::async::CoroutineStarter AsyncWebSocket::sendFrameHeaderAsync(const std::shared_ptr<Frame::Header>& frameHeader,
-                                                                    bool fin, v_word8 opcode, v_int64 messageSize)
+                                                                    bool fin, v_uint8 opcode, v_int64 messageSize)
 {
 
   frameHeader->fin = fin;
@@ -479,13 +479,13 @@ oatpp::async::CoroutineStarter AsyncWebSocket::sendFrameHeaderAsync(const std::s
   return writeFrameHeaderAsync(frameHeader);
 }
   
-oatpp::async::CoroutineStarter AsyncWebSocket::sendOneFrameAsync(bool fin, v_word8 opcode, const oatpp::String& message) {
+oatpp::async::CoroutineStarter AsyncWebSocket::sendOneFrameAsync(bool fin, v_uint8 opcode, const oatpp::String& message) {
   
   class SendFrameCoroutine : public oatpp::async::Coroutine<SendFrameCoroutine> {
   private:
     std::shared_ptr<AsyncWebSocket> m_socket;
     bool m_fin;
-    v_word8 m_opcode;
+    v_uint8 m_opcode;
     oatpp::String m_message;
     std::shared_ptr<Frame::Header> m_frameHeader;
   private:
@@ -494,7 +494,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::sendOneFrameAsync(bool fin, v_wor
     oatpp::data::buffer::InlineWriteData m_inlineData;
   public:
     SendFrameCoroutine(const std::shared_ptr<AsyncWebSocket>& socket,
-                       bool fin, v_word8 opcode, const oatpp::String& message)
+                       bool fin, v_uint8 opcode, const oatpp::String& message)
       : m_socket(socket)
       , m_fin(fin)
       , m_opcode(opcode)
@@ -539,7 +539,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::sendOneFrameAsync(bool fin, v_wor
   
 }
   
-oatpp::async::CoroutineStarter AsyncWebSocket::sendCloseAsync(v_word16 code, const oatpp::String& message) {
+oatpp::async::CoroutineStarter AsyncWebSocket::sendCloseAsync(v_uint16 code, const oatpp::String& message) {
 
   code = htons(code);
   

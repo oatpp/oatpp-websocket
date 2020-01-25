@@ -26,7 +26,7 @@
 
 namespace oatpp { namespace websocket {
 
-void Frame::packHeaderBits(v_word16& bits, const Header& frameHeader, v_word8& messageLengthScenario) {
+void Frame::packHeaderBits(v_uint16& bits, const Header& frameHeader, v_uint8& messageLengthScenario) {
   
   bits = 0;
   
@@ -52,7 +52,7 @@ void Frame::packHeaderBits(v_word16& bits, const Header& frameHeader, v_word8& m
   
 }
 
-void Frame::unpackHeaderBits(v_word16 bits, Header& frameHeader, v_word8& messageLen1) {
+void Frame::unpackHeaderBits(v_uint16 bits, Header& frameHeader, v_uint8& messageLen1) {
   frameHeader.fin = (bits & 32768) > 0; // 32768
   frameHeader.rsv1 = (bits & 16384) > 0; // 16384
   frameHeader.rsv2 = (bits & 8192) > 0; // 8192

@@ -38,32 +38,32 @@ public:
   /**
    * Continuation frame.
    */
-  static constexpr v_word8 OPCODE_CONTINUATION = 0x0;
+  static constexpr v_uint8 OPCODE_CONTINUATION = 0x0;
 
   /**
    * Text frame.
    */
-  static constexpr v_word8 OPCODE_TEXT = 0x1;
+  static constexpr v_uint8 OPCODE_TEXT = 0x1;
 
   /**
    * Binary frame.
    */
-  static constexpr v_word8 OPCODE_BINARY = 0x2;
+  static constexpr v_uint8 OPCODE_BINARY = 0x2;
 
   /**
    * Close frame.
    */
-  static constexpr v_word8 OPCODE_CLOSE = 0x8;
+  static constexpr v_uint8 OPCODE_CLOSE = 0x8;
 
   /**
    * Ping frame.
    */
-  static constexpr v_word8 OPCODE_PING = 0x9;
+  static constexpr v_uint8 OPCODE_PING = 0x9;
 
   /**
    * Pong frame.
    */
-  static constexpr v_word8 OPCODE_PONG = 0xA;
+  static constexpr v_uint8 OPCODE_PONG = 0xA;
   
 public:
 
@@ -94,7 +94,7 @@ public:
     /**
      * Operation code.
      */
-    v_word8 opcode;
+    v_uint8 opcode;
 
     /**
      * Mask bit. For client-to-server messages should be `true`. For server-to-client messages should be `false`.
@@ -109,7 +109,7 @@ public:
     /**
      * Payload mask.
      */
-    v_word8 mask[4] = {0, 0, 0, 0};
+    v_uint8 mask[4] = {0, 0, 0, 0};
   };
   
 public:
@@ -121,7 +121,7 @@ public:
    * @param messageLengthScenario - out parameter. Depending on message length scenario. Message length can be encoded
    * in 1, 2, or 8 bytes.
    */
-  static void packHeaderBits(v_word16& bits, const Header& frameHeader, v_word8& messageLengthScenario);
+  static void packHeaderBits(v_uint16& bits, const Header& frameHeader, v_uint8& messageLengthScenario);
 
   /**
    * Deserialize &l:Frame::Header;.
@@ -129,7 +129,7 @@ public:
    * @param frameHeader - out parameter. &l:Frame::Header;.
    * @param messageLen1 - first byte of encoded message length.
    */
-  static void unpackHeaderBits(v_word16 bits, Header& frameHeader, v_word8& messageLen1);
+  static void unpackHeaderBits(v_uint16 bits, Header& frameHeader, v_uint8& messageLen1);
   
 };
   

@@ -74,7 +74,7 @@ public:
      * @param code - close frame message code.
      * @param message - message text; &id:oatpp::String;.
      */
-    virtual void onClose(const WebSocket& socket, v_word16 code, const oatpp::String& message) = 0;
+    virtual void onClose(const WebSocket& socket, v_uint16 code, const oatpp::String& message) = 0;
 
     /**
      * Called when "text" or "binary" frame received. <br>
@@ -85,7 +85,7 @@ public:
      * @param data - pointer to message data.
      * @param size - data size.
      */
-    virtual void readMessage(const WebSocket& socket, v_word8 opcode, p_char8 data, oatpp::v_io_size size) = 0;
+    virtual void readMessage(const WebSocket& socket, v_uint8 opcode, p_char8 data, oatpp::v_io_size size) = 0;
     
   };
   
@@ -217,7 +217,7 @@ public:
    * @param opcode - operation code.
    * @param messageSize - coming message size.
    */
-  void sendFrameHeader(Frame::Header& frameHeader, bool fin, v_word8 opcode, v_int64 messageSize) const;
+  void sendFrameHeader(Frame::Header& frameHeader, bool fin, v_uint8 opcode, v_int64 messageSize) const;
 
   /**
    * Send one frame message with custom fin and opcode.
@@ -227,7 +227,7 @@ public:
    * @return - `true` on success, `false` on error.
    * if `false` returned socket should be closed manually.
    */
-  bool sendOneFrame(bool fin, v_word8 opcode, const oatpp::String& message) const;
+  bool sendOneFrame(bool fin, v_uint8 opcode, const oatpp::String& message) const;
 
   /**
    * Send close frame.
@@ -235,7 +235,7 @@ public:
    * @param message - message text. &id:oatpp::String;.
    * @throws - `runtime_error`.
    */
-  void sendClose(v_word16 code, const oatpp::String& message) const;
+  void sendClose(v_uint16 code, const oatpp::String& message) const;
 
   /**
    * Send close frame without message.
