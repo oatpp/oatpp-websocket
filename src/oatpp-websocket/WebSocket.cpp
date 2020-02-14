@@ -149,7 +149,7 @@ void WebSocket::readPayload(const Frame::Header& frameHeader, oatpp::data::strea
     throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::readPayload()]: Invalid payloadLength. See RFC-6455, section-5.5.");
   }
   
-  std::unique_ptr<v_char8> buffer(new v_char8[m_config.readBufferSize]);
+  std::unique_ptr<v_char8[]> buffer(new v_char8[m_config.readBufferSize]);
   oatpp::v_io_size progress = 0;
   
   while (progress < frameHeader.payloadLength) {
@@ -164,7 +164,7 @@ void WebSocket::readPayload(const Frame::Header& frameHeader, oatpp::data::strea
     if(res > 0) {
       
       if(frameHeader.hasMask) {
-		  std::unique_ptr<v_char8> decoded(new v_char8[res]);
+		  std::unique_ptr<v_char8[]> decoded(new v_char8[res]);
         for(v_int32 i = 0; i < res; i ++) {
           decoded.get()[i] = buffer.get()[i] ^ frameHeader.mask[(i + progress) % 4];
         }
@@ -321,7 +321,7 @@ bool WebSocket::sendOneFrame(bool fin, v_uint8 opcode, const oatpp::String& mess
     sendFrameHeader(frameHeader, fin, opcode, message->getSize());
     oatpp::v_io_size res;
     if(frameHeader.hasMask) {
-		std::unique_ptr<v_char8> encoded(new v_char8[message->getSize()]);
+		std::unique_ptr<v_char8[]> encoded(new v_char8[message->getSize()]);
       for(v_int32 i = 0; i < message->getSize(); i ++) {
         encoded.get()[i] = message->getData()[i] ^ frameHeader.mask[i % 4];
       }

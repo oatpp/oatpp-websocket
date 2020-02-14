@@ -287,7 +287,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readPayloadAsync(const std::share
       if(readResult > 0) {
       
         if(m_frameHeader->hasMask) {
-          std::unique_ptr<v_char8> decoded(new v_char8[readResult]);
+          std::unique_ptr<v_char8[]> decoded(new v_char8[readResult]);
           for(v_int32 i = 0; i < readResult; i ++) {
             decoded.get()[i] = m_buffer[i] ^ m_frameHeader->mask[(i + m_progress) % 4];
           }
