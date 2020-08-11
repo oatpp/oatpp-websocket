@@ -33,7 +33,7 @@ Connector::Connector(const std::shared_ptr<oatpp::network::ClientConnectionProvi
   , m_requestExecutor(connectionProvider)
 {}
 
-std::shared_ptr<Connector::Connection> Connector::connect(const oatpp::String& path) {
+std::shared_ptr<Connector::Connection> Connector::connect(const oatpp::String& path, const Headers& headers) {
 
   auto connection = m_connectionProvider->getConnection();
   if(!connection) {
@@ -42,11 +42,16 @@ std::shared_ptr<Connector::Connection> Connector::connect(const oatpp::String& p
 
   auto connectionHandle = std::make_shared<oatpp::web::client::HttpRequestExecutor::HttpConnectionHandle>(connection);
   
-  Handshaker::Headers headers;
-  Handshaker::clientsideHandshake(headers);
+  Handshaker::Headers allHeaders;
+  if(headers.getSize() > 0) {
+    for(auto& h : headers.getAll()) {
+      allHeaders.put(h.first, h.second);
+    }
+  }
 
-  auto response = m_requestExecutor.execute("GET", path, headers, nullptr, connectionHandle);
-  auto res = Handshaker::clientsideConfirmHandshake(headers, response);
+  Handshaker::clientsideHandshake(allHeaders);
+  auto response = m_requestExecutor.execute("GET", path, allHeaders, nullptr, connectionHandle);
+  auto res = Handshaker::clientsideConfirmHandshake(allHeaders, response);
 
   if(res == Handshaker::STATUS_OK) {
     return connection;
@@ -63,7 +68,7 @@ std::shared_ptr<Connector::Connection> Connector::connect(const oatpp::String& p
   
 }
 
-oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Connector::Connection>&> Connector::connectAsync(const oatpp::String& path) {
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Connector::Connection>&> Connector::connectAsync(const oatpp::String& path, const Headers& headers) {
   
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<Connection>&> {
   private:
@@ -76,11 +81,18 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Connector::Connect
     
     ConnectCoroutine(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,
                      const oatpp::web::client::HttpRequestExecutor& requestExecutor,
-                     const oatpp::String path)
+                     const oatpp::String path,
+                     const Headers& headers)
       : m_connectionProvider(connectionProvider)
       , m_requestExecutor(requestExecutor)
       , m_path(path)
-    {}
+    {
+      if(headers.getSize() > 0) {
+        for(auto& h : headers.getAll()) {
+          m_handshakeHeaders.put(h.first, h.second);
+        }
+      }
+    }
     
     Action act() override {
       return m_connectionProvider->getConnectionAsync().callbackTo(&ConnectCoroutine::onConnected);
@@ -114,7 +126,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Connector::Connect
     
   };
   
-  return ConnectCoroutine::startForResult(m_connectionProvider, m_requestExecutor, path);
+  return ConnectCoroutine::startForResult(m_connectionProvider, m_requestExecutor, path, headers);
   
 }
   

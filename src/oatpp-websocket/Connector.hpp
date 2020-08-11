@@ -51,6 +51,11 @@ public:
   using
   CoroutineStarterForResult = typename oatpp::async::CoroutineStarterForResult<Args...>;
 
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::Headers;.
+   */
+  typedef oatpp::web::protocol::http::Headers Headers;
+
 private:
   std::shared_ptr<oatpp::network::ClientConnectionProvider> m_connectionProvider;
   oatpp::web::client::HttpRequestExecutor m_requestExecutor;
@@ -76,17 +81,19 @@ public:
    * Connect to server, do websocket-handshake and return Connection which can be then passed to WebSocket constructor. <br>
    * **(Blocking call)**
    * @param path - path to websocket endpoint.
+   * @param headers - websocket connect request headers.
    * @return - &l:Connector::Connection;.
    */
-  std::shared_ptr<Connection> connect(const oatpp::String& path);
+  std::shared_ptr<Connection> connect(const oatpp::String& path, const Headers& headers = {});
 
   /**
    * Connect to server, do websocket-handshake and return Connection which can be then passed to WebSocket constructor. <br>
    * **(Async call)**
    * @param path - path to websocket endpoint.
+   * @param headers - websocket connect request headers.
    * @return - &id:oatpp::async::Action;.
    */
-  CoroutineStarterForResult<const std::shared_ptr<Connection>&> connectAsync(const oatpp::String& path);
+  CoroutineStarterForResult<const std::shared_ptr<Connection>&> connectAsync(const oatpp::String& path, const Headers& headers = {});
   
 };
   
