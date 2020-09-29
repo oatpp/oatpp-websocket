@@ -163,7 +163,7 @@ public:
    * Get WebSocket connection.
    * @return - &id:oatpp::data::stream::IOStream;.
    */
-  std::shared_ptr<oatpp::data::stream::IOStream> getConnection() const {
+  std::shared_ptr<oatpp::data::stream::IOStream> get() const {
     return m_connection;
   }
 

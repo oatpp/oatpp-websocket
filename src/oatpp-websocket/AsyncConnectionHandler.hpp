@@ -28,15 +28,15 @@
 #include "./AsyncWebSocket.hpp"
 
 #include "oatpp/core/async/Executor.hpp"
-#include "oatpp/network/server/ConnectionHandler.hpp"
+#include "oatpp/network/ConnectionHandler.hpp"
 
 namespace oatpp { namespace websocket {
 
 /**
  * Asynchronous websocket connection handler.
- * Extends &id:oatpp::base::Countable;, &id:oatpp::network::server::ConnectionHandler;.
+ * Extends &id:oatpp::base::Countable;, &id:oatpp::network::ConnectionHandler;.
  */
-class AsyncConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
+class AsyncConnectionHandler : public base::Countable, public network::ConnectionHandler {
 public:
 
   /**
@@ -50,9 +50,9 @@ public:
     typedef oatpp::websocket::AsyncWebSocket AsyncWebSocket;
 
     /**
-     * Convenience typedef for &id:oatpp::network::server::ConnectionHandler::ParameterMap;.
+     * Convenience typedef for &id:oatpp::network::ConnectionHandler::ParameterMap;.
      */
-    typedef oatpp::network::server::ConnectionHandler::ParameterMap ParameterMap;
+    typedef oatpp::network::ConnectionHandler::ParameterMap ParameterMap;
   public:
 
     /**
@@ -64,7 +64,7 @@ public:
      * Called when socket is created. <br>
      * **This method should not block**.
      * @param socket - &id:oatpp::websocket::AsyncWebSocket;.
-     * @param params - `std::shared_ptr` to const &id:oatpp::network::server::ConnectionHandler::ParameterMap;.
+     * @param params - `std::shared_ptr` to const &id:oatpp::network::ConnectionHandler::ParameterMap;.
      */
     virtual void onAfterCreate_NonBlocking(const std::shared_ptr<AsyncWebSocket>& socket, const std::shared_ptr<const ParameterMap>& params) = 0;
 
@@ -117,7 +117,7 @@ public:
   void setSocketInstanceListener(const std::shared_ptr<SocketInstanceListener>& listener);
 
   /**
-   * Implementation of &id:oatpp::network::server::ConnectionHandler::handleConnection;.
+   * Implementation of &id:oatpp::network::ConnectionHandler::handleConnection;.
    * @param connection - &id:oatpp::data::stream::IOStream;.
    */
   void handleConnection(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) override;

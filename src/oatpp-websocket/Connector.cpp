@@ -35,9 +35,9 @@ Connector::Connector(const std::shared_ptr<oatpp::network::ClientConnectionProvi
 
 std::shared_ptr<Connector::Connection> Connector::connect(const oatpp::String& path, const Headers& headers) {
 
-  auto connection = m_connectionProvider->getConnection();
+  auto connection = m_connectionProvider->get();
   if(!connection) {
-    throw std::runtime_error("[oatpp::web::client::Connector::connectAndHandshake()]: Can't connect. Call to ConnectionProvider::getConnection() failed.");
+    throw std::runtime_error("[oatpp::web::client::Connector::connectAndHandshake()]: Can't connect. Call to ConnectionProvider::get() failed.");
   }
 
   auto connectionHandle = std::make_shared<oatpp::web::client::HttpRequestExecutor::HttpConnectionHandle>(connection);
@@ -95,7 +95,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Connector::Connect
     }
     
     Action act() override {
-      return m_connectionProvider->getConnectionAsync().callbackTo(&ConnectCoroutine::onConnected);
+      return m_connectionProvider->getAsync().callbackTo(&ConnectCoroutine::onConnected);
     }
     
     Action onConnected(const std::shared_ptr<Connection>& connection) {

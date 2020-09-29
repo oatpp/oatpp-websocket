@@ -50,7 +50,7 @@ public:
 
     Action act() override {
       getAtom() ++;
-      auto params = std::make_shared<oatpp::network::server::ConnectionHandler::ParameterMap>();
+      auto params = std::make_shared<oatpp::network::ConnectionHandler::ParameterMap>();
       (*params)["p1"] = "v1";
       auto response = oatpp::websocket::Handshaker::serversideHandshake(request->getHeaders(), controller->websocketConnectionHandler);
       response->setConnectionUpgradeParameters(params);

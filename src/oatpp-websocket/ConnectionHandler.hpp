@@ -27,15 +27,15 @@
 
 #include "WebSocket.hpp"
 
-#include "oatpp/network/server/ConnectionHandler.hpp"
+#include "oatpp/network/ConnectionHandler.hpp"
 
 namespace oatpp { namespace websocket {
 
 /**
- * Websocket connection handler. Extends &id:oatpp::network::server::ConnectionHandler;. <br>
+ * Websocket connection handler. Extends &id:oatpp::network::ConnectionHandler;. <br>
  * Will create one thread per each connection to handle communication.
  */
-class ConnectionHandler : public oatpp::base::Countable, public network::server::ConnectionHandler {
+class ConnectionHandler : public oatpp::base::Countable, public network::ConnectionHandler {
 public:
 
   /**
@@ -49,15 +49,15 @@ public:
     typedef oatpp::websocket::WebSocket WebSocket;
 
     /**
-     * Convenience typedef for &id:oatpp::network::server::ConnectionHandler::ParameterMap;.
+     * Convenience typedef for &id:oatpp::network::ConnectionHandler::ParameterMap;.
      */
-    typedef oatpp::network::server::ConnectionHandler::ParameterMap ParameterMap;
+    typedef oatpp::network::ConnectionHandler::ParameterMap ParameterMap;
   public:
 
     /**
      * Called when socket is created
      * @param socket - &id:oatpp::websocket::WebSocket;.
-     * @param params - `std::shared_ptr` to const &id:oatpp::network::server::ConnectionHandler::ParameterMap;.
+     * @param params - `std::shared_ptr` to const &id:oatpp::network::ConnectionHandler::ParameterMap;.
      */
     virtual void onAfterCreate(const WebSocket& socket, const std::shared_ptr<const ParameterMap>& params) = 0;
 
@@ -94,13 +94,13 @@ public:
   }
 
   /**
-   * Implementation of &id:oatpp::network::server::ConnectionHandler::handleConnection;.
+   * Implementation of &id:oatpp::network::ConnectionHandler::handleConnection;.
    * @param connection - &id:oatpp::data::stream::IOStream;.
    */
   void handleConnection(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) override;
 
   /**
-   * Implementation of &id:oatpp::network::server::ConnectionHandler::stop;.
+   * Implementation of &id:oatpp::network::ConnectionHandler::stop;.
    * Here does nothing.
    */
   void stop() override {

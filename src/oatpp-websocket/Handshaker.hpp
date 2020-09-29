@@ -74,13 +74,13 @@ public:
    */
   typedef oatpp::web::protocol::http::incoming::Response IncomingResponse;
   typedef oatpp::web::protocol::http::Headers Headers;
-  typedef oatpp::network::server::ConnectionHandler ConnectionHandler;
+  typedef oatpp::network::ConnectionHandler ConnectionHandler;
 public:
 
   /**
    * Prepare OutgoingResponse as for websocket-handshake based on requestHeaders.
    * @param requestHeaders - request headers. &id:oatpp::web::protocol::http::Headers;.
-   * @param connectionUpgradeHandler - &id:oatpp::network::server::ConnectionHandler;.
+   * @param connectionUpgradeHandler - &id:oatpp::network::ConnectionHandler;.
    * @return - `std::shared_ptr` to &id:oatpp::web::protocol::http::outgoing::Response;.
    */
   static std::shared_ptr<OutgoingResponse> serversideHandshake(const Headers& requestHeaders, const std::shared_ptr<ConnectionHandler>& connectionUpgradeHandler);
