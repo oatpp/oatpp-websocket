@@ -179,7 +179,7 @@ public:
    * Get socket event listener
    * @return - &l:WebSocket::Listener;.
    */
-  std::shared_ptr<Listener> getListener() {
+  std::shared_ptr<Listener> getListener() const {
     return m_listener;
   }
 
