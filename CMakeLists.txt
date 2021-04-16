@@ -26,6 +26,7 @@ option(OATPP_BUILD_TESTS "Build tests for this module" ON)
 option(OATPP_INSTALL "Install module binaries" ON)
 
 set(OATPP_MODULES_LOCATION "INSTALLED" CACHE STRING "Location where to find oatpp modules. can be [INSTALLED|EXTERNAL|CUSTOM]")
+set(OATPP_EXTERNAL_SOURCE "GIT" CACHE STRING "Source of downloading external oatpp modules. can be [GIT|URL]")
 
 ###################################################################################################
 ## get oatpp main module in specified location
@@ -33,6 +34,9 @@ set(OATPP_MODULES_LOCATION "INSTALLED" CACHE STRING "Location where to find oatp
 set(OATPP_MODULES_LOCATION_INSTALLED INSTALLED)
 set(OATPP_MODULES_LOCATION_EXTERNAL EXTERNAL)
 set(OATPP_MODULES_LOCATION_CUSTOM CUSTOM)
+
+set(OATPP_EXTERNAL_SOURCE_GIT GIT)
+set(OATPP_EXTERNAL_SOURCE_URL URL)
 
 if(OATPP_MODULES_LOCATION STREQUAL OATPP_MODULES_LOCATION_INSTALLED)
 
@@ -55,12 +59,21 @@ elseif(OATPP_MODULES_LOCATION STREQUAL OATPP_MODULES_LOCATION_EXTERNAL)
     set(MODULE_WAIT_DEPS ON)
 
     set(LIB_OATPP_EXTERNAL "lib_oatpp_external")
-    ExternalProject_Add(${LIB_OATPP_EXTERNAL}
-            GIT_REPOSITORY "https://github.com/oatpp/oatpp.git"
-            GIT_TAG origin/master
-            CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=OFF
-            INSTALL_COMMAND cmake -E echo "SKIP INSTALL '${LIB_OATPP_EXTERNAL}'"
-    )
+
+    if(OATPP_EXTERNAL_SOURCE STREQUAL OATPP_EXTERNAL_SOURCE_GIT) 
+        ExternalProject_Add(${LIB_OATPP_EXTERNAL}
+                GIT_REPOSITORY "https://github.com/oatpp/oatpp.git"
+                GIT_TAG origin/master
+                CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=OFF
+                INSTALL_COMMAND cmake -E echo "SKIP INSTALL '${LIB_OATPP_EXTERNAL}'"
+        )
+    elseif(OATPP_EXTERNAL_SOURCE STREQUAL OATPP_EXTERNAL_SOURCE_URL)
+        ExternalProject_Add(${LIB_OATPP_EXTERNAL}
+                URL "https://github.com/oatpp/oatpp/archive/refs/heads/master.zip"
+                CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=OFF
+                INSTALL_COMMAND cmake -E echo "SKIP INSTALL '${LIB_OATPP_EXTERNAL}'"
+        )
+    endif()
 
     ExternalProject_Get_Property(${LIB_OATPP_EXTERNAL} BINARY_DIR)
     set(OATPP_DIR_LIB ${BINARY_DIR}/src)
