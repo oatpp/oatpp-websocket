@@ -67,6 +67,7 @@ elseif(OATPP_MODULES_LOCATION STREQUAL OATPP_MODULES_LOCATION_EXTERNAL)
 
     ExternalProject_Get_Property(${LIB_OATPP_EXTERNAL} SOURCE_DIR)
     set(OATPP_DIR_SRC ${SOURCE_DIR}/src)
+    include_directories(${OATPP_DIR_SRC})
 
     message("OATPP_DIR_SRC --> '${OATPP_DIR_SRC}'")
     message("OATPP_DIR_LIB --> '${OATPP_DIR_LIB}'")
