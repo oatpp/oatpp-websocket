@@ -40,7 +40,8 @@ std::shared_ptr<Connector::Connection> Connector::connect(const oatpp::String& p
     throw std::runtime_error("[oatpp::web::client::Connector::connectAndHandshake()]: Can't connect. Call to ConnectionProvider::get() failed.");
   }
 
-  auto connectionHandle = std::make_shared<oatpp::web::client::HttpRequestExecutor::HttpConnectionHandle>(connection);
+  auto connectionProxy = std::make_shared<web::client::HttpRequestExecutor::ConnectionProxy>(m_connectionProvider, connection);
+  auto connectionHandle = std::make_shared<web::client::HttpRequestExecutor::HttpConnectionHandle>(connectionProxy);
   
   Handshaker::Headers allHeaders;
   if(headers.getSize() > 0) {
@@ -101,8 +102,9 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Connector::Connect
     Action onConnected(const std::shared_ptr<Connection>& connection) {
       
       m_connection = connection;
-      
-      auto connectionHandle = std::make_shared<oatpp::web::client::HttpRequestExecutor::HttpConnectionHandle>(m_connection);
+
+      auto connectionProxy = std::make_shared<web::client::HttpRequestExecutor::ConnectionProxy>(m_connectionProvider, connection);
+      auto connectionHandle = std::make_shared<web::client::HttpRequestExecutor::HttpConnectionHandle>(connectionProxy);
       Handshaker::clientsideHandshake(m_handshakeHeaders);
 
       return m_requestExecutor.executeAsync("GET", m_path, m_handshakeHeaders, nullptr, connectionHandle).callbackTo(&ConnectCoroutine::onServerResponse);
