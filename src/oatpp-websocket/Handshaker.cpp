@@ -36,11 +36,11 @@ const char* const Handshaker::MAGIC_UUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11
 std::shared_ptr<Handshaker::OutgoingResponse> Handshaker::serversideHandshake(const Headers& requestHeaders, const std::shared_ptr<ConnectionHandler>& connectionUpgradeHandler) {
   
   auto version = requestHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("Sec-WebSocket-Version");
-  auto upgrade = requestHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI_FAST>(oatpp::web::protocol::http::Header::UPGRADE);
+  auto upgrade = requestHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI>(oatpp::web::protocol::http::Header::UPGRADE);
   auto connection = requestHeaders.get(oatpp::web::protocol::http::Header::CONNECTION);
   auto key = requestHeaders.get("Sec-WebSocket-Key");
   
-  if(upgrade && connection && version && key && key->getSize() > 0 && upgrade == "websocket") {
+  if(upgrade && connection && version && key && key->size() > 0 && upgrade == "websocket") {
 
     oatpp::web::protocol::http::HeaderValueData connectionValueSet;
     oatpp::web::protocol::http::Parser::parseHeaderValueData(connectionValueSet, connection, ',');
@@ -93,8 +93,8 @@ v_int32 Handshaker::clientsideConfirmHandshake(const Headers& clientHandshakeHea
     auto& responseHeaders = serverResponse->getHeaders();
     
     auto version = responseHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("Sec-WebSocket-Version");
-    auto upgrade = responseHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI_FAST>(oatpp::web::protocol::http::Header::UPGRADE);
-    auto connection = responseHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI_FAST>(oatpp::web::protocol::http::Header::CONNECTION);
+    auto upgrade = responseHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI>(oatpp::web::protocol::http::Header::UPGRADE);
+    auto connection = responseHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI>(oatpp::web::protocol::http::Header::CONNECTION);
     auto websocketAccept = responseHeaders.get("Sec-WebSocket-Accept");
     
     auto clientKey = clientHandshakeHeaders.get("Sec-WebSocket-Key");

@@ -34,7 +34,7 @@ void Utils::generateMaskForFrame(Frame::Header& frameHeader) {
 
 oatpp::String Utils::generateKey() {
   oatpp::String key(16);
-  oatpp::utils::random::Random::randomBytes(key->getData(), key->getSize());
+  oatpp::utils::random::Random::randomBytes((p_char8) key->data(), key->size());
   return oatpp::encoding::Base64::encode(key);
 }
 

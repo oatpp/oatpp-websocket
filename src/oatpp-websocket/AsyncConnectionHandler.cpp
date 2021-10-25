@@ -50,19 +50,19 @@ void AsyncConnectionHandler::setSocketInstanceListener(const std::shared_ptr<Soc
   m_listener = listener;
 }
 
-void AsyncConnectionHandler::handleConnection(const std::shared_ptr<IOStream>& connection,
+void AsyncConnectionHandler::handleConnection(const provider::ResourceHandle<IOStream>& connection,
                                               const std::shared_ptr<const ParameterMap>& params)
 {
   
   class SocketCoroutine : public oatpp::async::Coroutine<SocketCoroutine> {
   private:
-    std::shared_ptr<IOStream> m_connection;
+    provider::ResourceHandle<IOStream> m_connection;
     std::shared_ptr<const ParameterMap> m_params;
     std::shared_ptr<SocketInstanceListener> m_listener;
     std::shared_ptr<AsyncWebSocket> m_socket;
   public:
     
-    SocketCoroutine(const std::shared_ptr<IOStream>& connection,
+    SocketCoroutine(const provider::ResourceHandle<IOStream>& connection,
                     const std::shared_ptr<const ParameterMap>& params,
                     const std::shared_ptr<SocketInstanceListener>& listener)
       : m_connection(connection)
@@ -87,8 +87,8 @@ void AsyncConnectionHandler::handleConnection(const std::shared_ptr<IOStream>& c
     
   };
 
-  connection->setInputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
-  connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
+  connection.object->setInputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
+  connection.object->setOutputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
 
   m_executor->execute<SocketCoroutine>(connection, params, m_listener);
   

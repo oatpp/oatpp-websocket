@@ -31,10 +31,10 @@ ConnectionHandler::ConnectionHandler()
   : m_listener(nullptr)
 {}
 
-void ConnectionHandler::handleConnection(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) {
+void ConnectionHandler::handleConnection(const provider::ResourceHandle<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) {
   
   class Task : public base::Countable {
-    std::shared_ptr<IOStream> m_connection;
+    provider::ResourceHandle<IOStream> m_connection;
     std::shared_ptr<const ParameterMap> m_params;
     std::shared_ptr<SocketInstanceListener> m_listener;
     std::shared_ptr<WebSocket> m_socket;
@@ -42,7 +42,7 @@ void ConnectionHandler::handleConnection(const std::shared_ptr<IOStream>& connec
 
     Task(const Task&) = delete;
 
-    Task(const std::shared_ptr<IOStream>& connection,
+    Task(const provider::ResourceHandle<IOStream>& connection,
          const std::shared_ptr<const ParameterMap>& params,
          const std::shared_ptr<SocketInstanceListener>& listener)
       : m_connection(connection)
@@ -80,8 +80,8 @@ void ConnectionHandler::handleConnection(const std::shared_ptr<IOStream>& connec
     
   };
 
-  connection->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
-  connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
+  connection.object->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
+  connection.object->setOutputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
   
   /* Create working thread */
   std::thread thread(&Task::run, Task(connection, params, m_listener));

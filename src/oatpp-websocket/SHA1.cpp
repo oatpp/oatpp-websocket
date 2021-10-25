@@ -231,11 +231,11 @@ void SHA1::update(const oatpp::String &s) {
   while (true) {
     
     auto readSize = BLOCK_BYTES - buffer.getSize();
-    if(readSize > s->getSize() - progress) {
-      readSize = s->getSize() - progress;
+    if(readSize > s->size() - progress) {
+      readSize = s->size() - progress;
     }
     
-    buffer.writeSimple(&s->getData()[progress], readSize);
+    buffer.writeSimple(&s->data()[progress], readSize);
     progress += readSize;
     
     if (buffer.getSize() != BLOCK_BYTES) {
