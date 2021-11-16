@@ -34,7 +34,7 @@
 
 namespace oatpp { namespace websocket {
 
-void SHA1::reset(uint32_t digest[], ChunkedBuffer& buffer, uint64_t &transforms) {
+void SHA1::reset(uint32_t digest[], BufferOutputStream& buffer, uint64_t &transforms) {
   
   /* SHA1 initialization constants */
   digest[0] = 0x67452301;
@@ -44,7 +44,7 @@ void SHA1::reset(uint32_t digest[], ChunkedBuffer& buffer, uint64_t &transforms)
   digest[4] = 0xc3d2e1f0;
   
   /* Reset counters */
-  buffer.clear();
+  buffer.setCurrentPosition(0);
   transforms = 0;
   
 }
@@ -204,7 +204,7 @@ void SHA1::transform(uint32_t digest[], uint32_t block[BLOCK_INTS], uint64_t &tr
 }
 
 
-void SHA1::buffer_to_block(ChunkedBuffer& buffer, uint32_t block[BLOCK_INTS]) {
+void SHA1::buffer_to_block(BufferOutputStream& buffer, uint32_t block[BLOCK_INTS]) {
   /* Convert the std::string (byte buffer) to a uint32_t array (MSB) */
   /*
   for (size_t i = 0; i < BLOCK_INTS; i++) {
@@ -214,7 +214,12 @@ void SHA1::buffer_to_block(ChunkedBuffer& buffer, uint32_t block[BLOCK_INTS]) {
     | (buffer[4 * i + 0] & 0xff)<<24;
   }
    */
-  buffer.readSubstring(block, 0, BLOCK_INTS * 4);
+
+  v_int64 readSize = BLOCK_INTS * 4;
+  if(readSize > buffer.getCurrentPosition()) {
+    readSize = buffer.getCurrentPosition();
+  }
+  memcpy(block, buffer.getData(), readSize);
   for(v_int32 i = 0; i < BLOCK_INTS; i ++) {
     block[i] = ntohl(block[i]);
   }
@@ -230,7 +235,7 @@ void SHA1::update(const oatpp::String &s) {
   oatpp::v_io_size progress = 0;
   while (true) {
     
-    auto readSize = BLOCK_BYTES - buffer.getSize();
+    auto readSize = BLOCK_BYTES - buffer.getCurrentPosition();
     if(readSize > s->size() - progress) {
       readSize = s->size() - progress;
     }
@@ -238,14 +243,14 @@ void SHA1::update(const oatpp::String &s) {
     buffer.writeSimple(&s->data()[progress], readSize);
     progress += readSize;
     
-    if (buffer.getSize() != BLOCK_BYTES) {
+    if (buffer.getCurrentPosition() != BLOCK_BYTES) {
       return;
     }
     
     uint32_t block[BLOCK_INTS];
     buffer_to_block(buffer, block);
     transform(digest, block, transforms);
-    buffer.clear();
+    buffer.setCurrentPosition(0);
     
   }
 }
@@ -256,17 +261,17 @@ void SHA1::update(std::istream &is) {
     
     char sbuf[BLOCK_BYTES];
     
-    is.read(sbuf, (int)(BLOCK_BYTES - buffer.getSize()));
+    is.read(sbuf, (int)(BLOCK_BYTES - buffer.getCurrentPosition()));
     buffer.writeSimple(sbuf, (std::size_t)is.gcount());
     
-    if (buffer.getSize() != BLOCK_BYTES) {
+    if (buffer.getCurrentPosition() != BLOCK_BYTES) {
       return;
     }
     
     uint32_t block[BLOCK_INTS];
     buffer_to_block(buffer, block);
     transform(digest, block, transforms);
-    buffer.clear();
+    buffer.setCurrentPosition(0);
     
   }
 }
@@ -278,12 +283,12 @@ void SHA1::update(std::istream &is) {
 
 oatpp::String SHA1::finalBinary() {
   /* Total number of hashed bits */
-  uint64_t total_bits = (transforms * BLOCK_BYTES + buffer.getSize()) * 8;
+  uint64_t total_bits = (transforms * BLOCK_BYTES + buffer.getCurrentPosition()) * 8;
   
   /* Padding */
   buffer.writeCharSimple(0x80);
-  size_t orig_size = (size_t)buffer.getSize();
-  while (buffer.getSize() < BLOCK_BYTES) {
+  size_t orig_size = (size_t)buffer.getCurrentPosition();
+  while (buffer.getCurrentPosition() < BLOCK_BYTES) {
     buffer.writeCharSimple(0x00);
   }
   
@@ -303,7 +308,7 @@ oatpp::String SHA1::finalBinary() {
   block[BLOCK_INTS - 2] = (uint32_t)(total_bits >> 32);
   transform(digest, block, transforms);
   
-  oatpp::data::stream::ChunkedBuffer resultStream;
+  oatpp::data::stream::BufferOutputStream resultStream;
   for (size_t i = 0; i < sizeof(digest) / sizeof(digest[0]); i++) {
     uint32_t b = htonl(digest[i]);
     resultStream.writeSimple(&b, 4);

@@ -115,7 +115,7 @@ private:
   v_int64 m_lastTick = 0;
   v_int32 m_messageCounter = 0;
   bool m_printLog;
-  oatpp::data::stream::ChunkedBuffer m_messageBuffer;
+  oatpp::data::stream::BufferOutputStream m_messageBuffer;
 public:
 
   ClientSocketListener(bool printLog)
@@ -138,7 +138,7 @@ public:
     if(size == 0) {
       m_messageCounter ++;
       auto wholeMessage = m_messageBuffer.toString();
-      m_messageBuffer.clear();
+      m_messageBuffer.setCurrentPosition(0);
       if(m_printLog) {
         auto tick = oatpp::base::Environment::getMicroTickCount();
         OATPP_LOGD("client", "sid=%d, received %s, latency=%d, messageCount=%d", socket.get(), wholeMessage->c_str(), tick - m_lastTick, m_messageCounter);

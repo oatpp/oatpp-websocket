@@ -28,8 +28,8 @@
 #include "./Frame.hpp"
 #include "./Config.hpp"
 
+#include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/provider/Provider.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace websocket {
@@ -130,7 +130,7 @@ private:
    * if(shortMessageStream) - read message to shortMessageStream. Don't call listener
    */
   CoroutineStarter readPayloadAsync(const std::shared_ptr<Frame::Header>& frameHeader,
-                                    const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& shortMessageStream);
+                                    const std::shared_ptr<oatpp::data::stream::BufferOutputStream>& shortMessageStream);
 
   CoroutineStarter handleFrameAsync(const std::shared_ptr<Frame::Header>& frameHeader);
   

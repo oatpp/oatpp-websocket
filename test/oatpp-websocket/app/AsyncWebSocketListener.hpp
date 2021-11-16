@@ -12,7 +12,7 @@ namespace oatpp { namespace test { namespace websocket { namespace app {
 
 class AsyncWebSocketListener : public oatpp::websocket::AsyncWebSocket::Listener {
 private:
-  oatpp::data::stream::ChunkedBuffer m_messageBuffer;
+  oatpp::data::stream::BufferOutputStream m_messageBuffer;
 public:
 
   CoroutineStarter onPing(const std::shared_ptr<AsyncWebSocket>& socket, const oatpp::String& message) override {
@@ -30,7 +30,7 @@ public:
   CoroutineStarter readMessage(const std::shared_ptr<AsyncWebSocket>& socket, v_uint8 opcode, p_char8 data, oatpp::v_io_size size) override {
     if(size == 0) {
       oatpp::String wholeMessage = m_messageBuffer.toString();
-      m_messageBuffer.clear();
+      m_messageBuffer.setCurrentPosition(0);
       return socket->sendOneFrameTextAsync("Hello from oatpp!: " + wholeMessage);
     } else if(size > 0) {
       m_messageBuffer.writeSimple(data, size);

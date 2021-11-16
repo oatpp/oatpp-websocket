@@ -217,7 +217,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::writeFrameHeaderAsync(const std::
 }
 
 oatpp::async::CoroutineStarter AsyncWebSocket::readPayloadAsync(const std::shared_ptr<Frame::Header>& frameHeader,
-                                                                const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& shortMessageStream)
+                                                                const std::shared_ptr<oatpp::data::stream::BufferOutputStream>& shortMessageStream)
 {
   
   class ReadPayloadCoroutine : public oatpp::async::Coroutine<ReadPayloadCoroutine> {
@@ -225,7 +225,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readPayloadAsync(const std::share
     std::shared_ptr<AsyncWebSocket> m_socket;
     provider::ResourceHandle<oatpp::data::stream::IOStream> m_connection;
     std::shared_ptr<Frame::Header> m_frameHeader;
-    std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_shortMessageStream;
+    std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_shortMessageStream;
     std::shared_ptr<Listener> m_listener;
   private:
     p_char8 m_buffer;
@@ -236,7 +236,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::readPayloadAsync(const std::share
     ReadPayloadCoroutine(const std::shared_ptr<AsyncWebSocket>& socket,
                          const provider::ResourceHandle<oatpp::data::stream::IOStream>& connection,
                          const std::shared_ptr<Frame::Header>& frameHeader,
-                         const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& shortMessageStream,
+                         const std::shared_ptr<oatpp::data::stream::BufferOutputStream>& shortMessageStream,
                          const std::shared_ptr<Listener>& listener)
       : m_socket(socket)
       , m_connection(connection)
@@ -340,7 +340,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::handleFrameAsync(const std::share
     std::shared_ptr<Frame::Header> m_frameHeader;
     std::shared_ptr<Listener> m_listener;
   private:
-    std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_shortMessageStream;
+    std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_shortMessageStream;
   public:
     HandleFrameCoroutine(const std::shared_ptr<AsyncWebSocket>& socket,
                          const std::shared_ptr<Frame::Header>& frameHeader)
@@ -373,15 +373,15 @@ oatpp::async::CoroutineStarter AsyncWebSocket::handleFrameAsync(const std::share
           }
           
         case Frame::OPCODE_CLOSE:
-          m_shortMessageStream = oatpp::data::stream::ChunkedBuffer::createShared();
+          m_shortMessageStream = std::make_shared<data::stream::BufferOutputStream>();
           return m_socket->readPayloadAsync(m_frameHeader, m_shortMessageStream).next(yieldTo(&HandleFrameCoroutine::onClose));
           
         case Frame::OPCODE_PING:
-          m_shortMessageStream = oatpp::data::stream::ChunkedBuffer::createShared();
+          m_shortMessageStream = std::make_shared<data::stream::BufferOutputStream>();
           return m_socket->readPayloadAsync(m_frameHeader, m_shortMessageStream).next(yieldTo(&HandleFrameCoroutine::onPing));
           
         case Frame::OPCODE_PONG:
-          m_shortMessageStream = oatpp::data::stream::ChunkedBuffer::createShared();
+          m_shortMessageStream = std::make_shared<data::stream::BufferOutputStream>();
           return m_socket->readPayloadAsync(m_frameHeader, m_shortMessageStream).next(yieldTo(&HandleFrameCoroutine::onPong));
           
         default:
@@ -395,10 +395,9 @@ oatpp::async::CoroutineStarter AsyncWebSocket::handleFrameAsync(const std::share
       if(m_listener) {
         v_uint16 code = 0;
         oatpp::String message;
-        if(m_shortMessageStream->getSize() >= 2) {
-          m_shortMessageStream->readSubstring(&code, 0, 2);
-          code = ntohs(code);
-          message = m_shortMessageStream->getSubstring(2, m_shortMessageStream->getSize() - 2);
+        if(m_shortMessageStream->getCurrentPosition() >= 2) {
+          code = ntohs(*((p_uint16) m_shortMessageStream->getData()));
+          message = m_shortMessageStream->getSubstring(2, m_shortMessageStream->getCurrentPosition() - 2);
         }
         if(!message) {
           message = "";
@@ -543,7 +542,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::sendCloseAsync(v_uint16 code, con
 
   code = htons(code);
   
-  oatpp::data::stream::ChunkedBuffer buffer;
+  oatpp::data::stream::BufferOutputStream buffer;
   buffer.writeSimple(&code, 2);
   if(message) {
     buffer.writeSimple(message->data(), message->size());

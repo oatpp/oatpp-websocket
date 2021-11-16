@@ -28,8 +28,8 @@
 #include "./Frame.hpp"
 #include "./Config.hpp"
 
+#include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/provider/Provider.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 
 namespace oatpp { namespace websocket {
 
@@ -99,7 +99,7 @@ private:
    * if(shortMessageStream == nullptr) - read call readMessage() method of listener
    * if(shortMessageStream) - read message to shortMessageStream. Don't call listener
    */
-  void readPayload(const Frame::Header& frameHeader, oatpp::data::stream::ChunkedBuffer* shortMessageStream) const;
+  void readPayload(const Frame::Header& frameHeader, oatpp::data::stream::BufferOutputStream* shortMessageStream) const;
   
   void handleFrame(const Frame::Header& frameHeader);
 

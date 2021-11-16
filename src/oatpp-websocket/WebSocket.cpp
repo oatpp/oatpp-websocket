@@ -143,7 +143,7 @@ void WebSocket::writeFrameHeader(const Frame::Header& frameHeader) const {
   
 }
   
-void WebSocket::readPayload(const Frame::Header& frameHeader, oatpp::data::stream::ChunkedBuffer* shortMessageStream) const {
+void WebSocket::readPayload(const Frame::Header& frameHeader, data::stream::BufferOutputStream* shortMessageStream) const {
   
   if(shortMessageStream && frameHeader.payloadLength > 125) {
     throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::readPayload()]: Invalid payloadLength. See RFC-6455, section-5.5.");
@@ -227,15 +227,14 @@ void WebSocket::handleFrame(const Frame::Header& frameHeader) {
       
     case Frame::OPCODE_CLOSE:
       {
-        oatpp::data::stream::ChunkedBuffer messageStream;
+        oatpp::data::stream::BufferOutputStream messageStream;
         readPayload(frameHeader, &messageStream);
         if(m_listener) {
           v_uint16 code = 0;
           oatpp::String message;
-          if(messageStream.getSize() >= 2) {
-            messageStream.readSubstring(&code, 0, 2);
-            code = ntohs(code);
-            message = messageStream.getSubstring(2, messageStream.getSize() - 2);
+          if(messageStream.getCurrentPosition() >= 2) {
+            code = ntohs(*((p_uint16) messageStream.getData()));
+            message = messageStream.getSubstring(2, messageStream.getCurrentPosition() - 2);
           }
           if(!message) {
             message = "";
@@ -247,7 +246,7 @@ void WebSocket::handleFrame(const Frame::Header& frameHeader) {
       
     case Frame::OPCODE_PING:
       {
-        oatpp::data::stream::ChunkedBuffer messageStream;
+        oatpp::data::stream::BufferOutputStream messageStream;
         readPayload(frameHeader, &messageStream);
         if(m_listener) {
           m_listener->onPing(*this, messageStream.toString());
@@ -257,7 +256,7 @@ void WebSocket::handleFrame(const Frame::Header& frameHeader) {
       
     case Frame::OPCODE_PONG:
       {
-        oatpp::data::stream::ChunkedBuffer messageStream;
+        oatpp::data::stream::BufferOutputStream messageStream;
         readPayload(frameHeader, &messageStream);
         if(m_listener) {
           m_listener->onPong(*this, messageStream.toString());
@@ -342,7 +341,7 @@ void WebSocket::sendClose(v_uint16 code, const oatpp::String& message) const {
   
   code = htons(code);
   
-  oatpp::data::stream::ChunkedBuffer buffer;
+  oatpp::data::stream::BufferOutputStream buffer;
   buffer.writeSimple(&code, 2);
   if(message) {
     buffer.writeSimple(message->data(), message->size());

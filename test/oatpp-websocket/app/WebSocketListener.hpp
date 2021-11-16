@@ -8,7 +8,7 @@
 #include "oatpp-websocket/ConnectionHandler.hpp"
 #include "oatpp-websocket/WebSocket.hpp"
 
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace test { namespace websocket { namespace app {
 
@@ -16,7 +16,7 @@ class WebSocketListener : public oatpp::websocket::WebSocket::Listener {
 private:
   static constexpr const char *const TAG = "WebSocketListener";
 private:
-  oatpp::data::stream::ChunkedBuffer m_messageBuffer;
+  oatpp::data::stream::BufferOutputStream m_messageBuffer;
 public:
 
   void onPing(const WebSocket &socket, const oatpp::String &message) override {
@@ -43,7 +43,7 @@ public:
       auto wholeMessage = m_messageBuffer.toString();
       OATPP_LOGD(TAG, "Message='%s'", wholeMessage->c_str());
       socket.sendOneFrameText("Hello from oatpp! Your message was: " + wholeMessage);
-      m_messageBuffer.clear();
+      m_messageBuffer.setCurrentPosition(0);
     } else if (size > 0) {
       m_messageBuffer.writeSimple(data, size);
     }
