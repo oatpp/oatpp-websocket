@@ -388,5 +388,10 @@ void WebSocket::sendOneFrameBinary(const oatpp::String& message) const {
     throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::sendOneFrameBinary()]: Unknown error while writing to socket.");
   }
 }
-  
+
+void WebSocket::sendOneFrameDto(const Void &dto,
+                                const std::shared_ptr<oatpp::data::mapping::ObjectMapper> &objectMapper) const {
+  sendOneFrameText(objectMapper->writeToString(dto));
+}
+
 }}

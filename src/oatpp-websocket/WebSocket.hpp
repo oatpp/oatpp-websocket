@@ -30,6 +30,8 @@
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/provider/Provider.hpp"
+#include "oatpp/core/data/mapping/ObjectMapper.hpp"
+#include "oatpp/core/macro/component.hpp"
 
 namespace oatpp { namespace websocket {
 
@@ -271,6 +273,13 @@ public:
    * @throws - `runtime_error`.
    */
   void sendOneFrameBinary(const oatpp::String& message) const;
+
+  /**
+   * Send one-frame dto message.
+   * @param message - message dto. &id:oatpp::data::mapping::type::Void;.
+   * @throws - `runtime_error`.
+   */
+  void sendOneFrameDto(const oatpp::data::mapping::type::Void& dto, const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper = OATPP_GET_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>)) const;
   
 };
   
