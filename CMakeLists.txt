@@ -23,6 +23,7 @@ option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(OATPP_DIR_SRC "Path to oatpp module directory (sources)")
 option(OATPP_DIR_LIB "Path to directory with liboatpp (directory containing ex: liboatpp.so or liboatpp.dynlib)")
 option(OATPP_BUILD_TESTS "Build tests for this module" ON)
+option(OATPP_LINK_TEST_LIBRARY "Link oat++ test library" ON)
 option(OATPP_INSTALL "Install module binaries" ON)
 option(OATPP_MSVC_LINK_STATIC_RUNTIME "MSVC: Link with static runtime (/MT and /MTd)." OFF)
 
@@ -48,8 +49,10 @@ if(OATPP_MODULES_LOCATION STREQUAL OATPP_MODULES_LOCATION_INSTALLED)
     get_target_property(OATPP_INCLUDE oatpp::oatpp INTERFACE_INCLUDE_DIRECTORIES)
     message("OATPP_INCLUDE=${OATPP_INCLUDE}")
 
-    get_target_property(OATPP_TEST_INCLUDE oatpp::oatpp-test INTERFACE_INCLUDE_DIRECTORIES)
-    message("OATPP_TEST_INCLUDE=${OATPP_TEST_INCLUDE}")
+	if(OATPP_BUILD_TESTS)
+		get_target_property(OATPP_TEST_INCLUDE oatpp::oatpp-test INTERFACE_INCLUDE_DIRECTORIES)
+		message("OATPP_TEST_INCLUDE=${OATPP_TEST_INCLUDE}")
+	endif()
 
 elseif(OATPP_MODULES_LOCATION STREQUAL OATPP_MODULES_LOCATION_EXTERNAL)
 
