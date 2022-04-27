@@ -27,7 +27,7 @@
 #include "./Utils.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
-  #include <WinSock2.h>
+  #include <winsock2.h>
 #else
   #include <arpa/inet.h>
 #endif
