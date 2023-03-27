@@ -56,15 +56,13 @@ void AsyncWebSocket::setConfig(const Config& config) {
 }
 
 bool AsyncWebSocket::checkForContinuation(const Frame::Header& frameHeader) {
-  if(m_lastOpcode == Frame::OPCODE_TEXT || m_lastOpcode == Frame::OPCODE_BINARY) {
-    return false;
-  }
+  bool flag = m_lastOpcode == -1;
   if(frameHeader.fin) {
     m_lastOpcode = -1;
-  } else {
+  } else if(frameHeader.opcode != Frame::OPCODE_CONTINUATION && flag) {
     m_lastOpcode = frameHeader.opcode;
   }
-  return true;
+  return flag;
 }
   
 oatpp::async::CoroutineStarter AsyncWebSocket::readFrameHeaderAsync(const std::shared_ptr<Frame::Header>& frameHeader) {
@@ -353,10 +351,12 @@ oatpp::async::CoroutineStarter AsyncWebSocket::handleFrameAsync(const std::share
       
       switch (m_frameHeader->opcode) {
         case Frame::OPCODE_CONTINUATION:
-          if(m_socket->m_lastOpcode < 0) {
-            throw std::runtime_error("[oatpp::web::protocol::websocket::AsyncWebSocket::handleFrameAsync(){HandleFrameCoroutine}]: Invalid communication state.");
+          if(m_socket->checkForContinuation(*m_frameHeader)) {
+            throw std::runtime_error("[oatpp::web::protocol::websocket::AsyncWebSocket::handleFrameAsync(){HandleFrameCoroutine}]: Invalid communication state. OPCODE_CONTINUATION unexpected");
+          } else {
+            return m_socket->readPayloadAsync(m_frameHeader, nullptr).next(finish());
           }
-          return m_socket->readPayloadAsync(m_frameHeader, nullptr).next(finish());
+          break;
           
         case Frame::OPCODE_TEXT:
           if(m_socket->checkForContinuation(*m_frameHeader)) {
@@ -364,6 +364,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::handleFrameAsync(const std::share
           } else {
             throw std::runtime_error("[oatpp::web::protocol::websocket::AsyncWebSocket::handleFrameAsync(){HandleFrameCoroutine}]: Invalid communication state. OPCODE_CONTINUATION expected");
           }
+          break;
           
         case Frame::OPCODE_BINARY:
           if(m_socket->checkForContinuation(*m_frameHeader)) {
@@ -371,6 +372,7 @@ oatpp::async::CoroutineStarter AsyncWebSocket::handleFrameAsync(const std::share
           } else {
             throw std::runtime_error("[oatpp::web::protocol::websocket::AsyncWebSocket::handleFrameAsync(){HandleFrameCoroutine}]: Invalid communication state. OPCODE_CONTINUATION expected");
           }
+          break;
           
         case Frame::OPCODE_CLOSE:
           m_shortMessageStream = std::make_shared<data::stream::BufferOutputStream>();
