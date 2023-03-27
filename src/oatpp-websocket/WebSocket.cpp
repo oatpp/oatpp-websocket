@@ -56,15 +56,13 @@ void WebSocket::setConfig(const Config& config) {
 }
 
 bool WebSocket::checkForContinuation(const Frame::Header& frameHeader) {
-  if(m_lastOpcode == Frame::OPCODE_TEXT || m_lastOpcode == Frame::OPCODE_BINARY) {
-    return false;
-  }
+  bool flag = m_lastOpcode == -1;
   if(frameHeader.fin) {
     m_lastOpcode = -1;
-  } else {
+  } else if(flag && frameHeader.opcode != Frame::OPCODE_CONTINUATION) {
     m_lastOpcode = frameHeader.opcode;
   }
-  return true;
+  return flag;
 }
   
 void WebSocket::readFrameHeader(Frame::Header& frameHeader) const {
@@ -203,10 +201,11 @@ void WebSocket::handleFrame(const Frame::Header& frameHeader) {
   
   switch (frameHeader.opcode) {
     case Frame::OPCODE_CONTINUATION:
-      if(m_lastOpcode < 0) {
-        throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::handleFrame()]: Invalid communication state.");
+      if(checkForContinuation(frameHeader)) {
+        throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::handleFrame()]: Invalid communication state. OPCODE_CONTINUATION unexpected");
+      } else {
+        readPayload(frameHeader, nullptr);
       }
-      readPayload(frameHeader, nullptr);
       break;
       
     case Frame::OPCODE_TEXT:
