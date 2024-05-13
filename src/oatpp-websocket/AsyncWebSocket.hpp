@@ -28,9 +28,9 @@
 #include "./Frame.hpp"
 #include "./Config.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/provider/Provider.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
+#include "oatpp/provider/Provider.hpp"
+#include "oatpp/async/Coroutine.hpp"
 
 namespace oatpp { namespace websocket {
 

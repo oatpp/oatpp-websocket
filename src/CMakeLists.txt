@@ -22,7 +22,7 @@ add_library(${OATPP_THIS_MODULE_NAME}
 )
 
 set_target_properties(${OATPP_THIS_MODULE_NAME} PROPERTIES
-        CXX_STANDARD 11
+        CXX_STANDARD 17
         CXX_EXTENSIONS OFF
         CXX_STANDARD_REQUIRED ON
 )

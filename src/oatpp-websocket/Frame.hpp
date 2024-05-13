@@ -25,7 +25,7 @@
 #ifndef oatpp_websocket_Frame_hpp
 #define oatpp_websocket_Frame_hpp
 
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace websocket {
 

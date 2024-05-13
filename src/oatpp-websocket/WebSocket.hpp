@@ -28,8 +28,8 @@
 #include "./Frame.hpp"
 #include "./Config.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/provider/Provider.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
+#include "oatpp/provider/Provider.hpp"
 
 namespace oatpp { namespace websocket {
 

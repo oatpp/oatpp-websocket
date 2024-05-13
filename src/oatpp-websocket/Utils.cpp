@@ -24,7 +24,7 @@
 
 #include "Utils.hpp"
 #include "oatpp/encoding/Base64.hpp"
-#include "oatpp/core/utils/Random.hpp"
+#include "oatpp/utils/Random.hpp"
 
 namespace oatpp { namespace websocket {
 

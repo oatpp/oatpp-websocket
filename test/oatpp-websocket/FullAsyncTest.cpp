@@ -21,7 +21,7 @@
 
 #include "oatpp-test/web/ClientServerTestRunner.hpp"
 
-#include "oatpp/core/macro/component.hpp"
+#include "oatpp/macro/component.hpp"
 
 namespace oatpp { namespace test { namespace websocket {
 
@@ -77,10 +77,8 @@ public:
    *  Create ObjectMapper component to serialize/deserialize DTOs in Contoller's API
    */
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, apiObjectMapper)([] {
-    auto serializerConfig = oatpp::parser::json::mapping::Serializer::Config::createShared();
-    auto deserializerConfig = oatpp::parser::json::mapping::Deserializer::Config::createShared();
-    deserializerConfig->allowUnknownFields = false;
-    auto objectMapper = oatpp::parser::json::mapping::ObjectMapper::createShared(serializerConfig, deserializerConfig);
+    auto objectMapper = std::make_shared<oatpp::json::ObjectMapper>();
+    objectMapper->deserializerConfig().mapper.allowUnknownFields = false;
     return objectMapper;
   }());
 
@@ -140,7 +138,7 @@ public:
       auto wholeMessage = m_messageBuffer.toString();
       m_messageBuffer.setCurrentPosition(0);
       if(m_printLog) {
-        auto tick = oatpp::base::Environment::getMicroTickCount();
+        auto tick = oatpp::Environment::getMicroTickCount();
         OATPP_LOGD("client", "sid=%d, received %s, latency=%d, messageCount=%d", socket.get(), wholeMessage->c_str(), tick - m_lastTick, m_messageCounter);
         m_lastTick = tick;
       }

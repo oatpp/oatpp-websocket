@@ -23,8 +23,8 @@
 #ifndef oatpp_websocket_SHA1_HPP
 #define oatpp_websocket_SHA1_HPP
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
+#include "oatpp/Types.hpp"
 
 #include <cstdint>
 #include <iostream>

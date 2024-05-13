@@ -26,7 +26,7 @@
 #define oatpp_websocket_Utils_hpp
 
 #include "./Frame.hpp"
-#include "oatpp/core/concurrency/SpinLock.hpp"
+#include "oatpp/concurrency/SpinLock.hpp"
 #include <random>
 
 namespace oatpp { namespace websocket {

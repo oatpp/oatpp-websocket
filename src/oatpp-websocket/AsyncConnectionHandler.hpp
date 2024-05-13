@@ -27,7 +27,7 @@
 
 #include "./AsyncWebSocket.hpp"
 
-#include "oatpp/core/async/Executor.hpp"
+#include "oatpp/async/Executor.hpp"
 #include "oatpp/network/ConnectionHandler.hpp"
 
 namespace oatpp { namespace websocket {

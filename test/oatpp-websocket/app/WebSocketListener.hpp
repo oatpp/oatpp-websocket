@@ -8,7 +8,7 @@
 #include "oatpp-websocket/ConnectionHandler.hpp"
 #include "oatpp-websocket/WebSocket.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace test { namespace websocket { namespace app {
 
