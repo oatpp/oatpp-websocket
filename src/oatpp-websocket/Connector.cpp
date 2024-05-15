@@ -25,6 +25,7 @@
 #include "Connector.hpp"
 
 #include "./Handshaker.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace websocket {
 
@@ -57,7 +58,7 @@ provider::ResourceHandle<Connector::Connection> Connector::connect(const oatpp::
   if(res == Handshaker::STATUS_OK) {
     return connection;
   } else if(res == Handshaker::STATUS_SERVER_ERROR) {
-    OATPP_LOGD("[oatpp::web::client::Connector::connectAndHandshake()]", "Server response code=%d", response->getStatusCode());
+    OATPP_LOGd("[oatpp::web::client::Connector::connectAndHandshake()]", "Server response code={}", response->getStatusCode());
     throw std::runtime_error("[oatpp::web::client::Connector::connectAndHandshake()]: Server responded with invalid code");
   } else if(res == Handshaker::STATUS_SERVER_WRONG_KEY) {
     throw std::runtime_error("[oatpp::web::client::Connector::connectAndHandshake()]: Server wrong handshake key");

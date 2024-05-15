@@ -102,17 +102,17 @@ private:
 public:
 
   void onPing(const WebSocket &socket, const oatpp::String &message) override {
-    OATPP_LOGD(TAG, "Ping frame received. Sending Pong back.");
+    OATPP_LOGd(TAG, "Ping frame received. Sending Pong back.");
     socket.sendPong("");
   }
 
   void onPong(const WebSocket &socket, const oatpp::String &message) override {
-    OATPP_LOGD(TAG, "Pong frame received. Do nothing.");
+    OATPP_LOGd(TAG, "Pong frame received. Do nothing.");
     // DO NOTHING
   }
 
   void onClose(const WebSocket &socket, v_uint16 code, const oatpp::String &message) override {
-    OATPP_LOGD(TAG, "Close frame received. Code=%hd, Message='%s'", code, message->c_str());
+    OATPP_LOGd(TAG, "Close frame received. Code={}, Message='{}'", code, message);
   }
 
   /**
@@ -123,7 +123,7 @@ public:
   void readMessage(const WebSocket &socket, v_uint8 opcode, p_char8 data, oatpp::v_io_size size) override {
     if (size == 0) {
       auto wholeMessage = m_messageBuffer.toString();
-      OATPP_LOGD(TAG, "Message='%s'", wholeMessage->c_str());
+      OATPP_LOGd(TAG, "Message='{}'", wholeMessage);
       socket.sendOneFrameText("Hello from oatpp! Your message was: " + wholeMessage);
       m_messageBuffer.setCurrentPosition(0);
     } else if (size > 0) {

@@ -139,7 +139,10 @@ public:
       m_messageBuffer.setCurrentPosition(0);
       if(m_printLog) {
         auto tick = oatpp::Environment::getMicroTickCount();
-        OATPP_LOGD("client", "sid=%d, received %s, latency=%d, messageCount=%d", socket.get(), wholeMessage->c_str(), tick - m_lastTick, m_messageCounter);
+        OATPP_LOGd("client", "sid={}, received {}, latency={}, messageCount={}",
+                   reinterpret_cast<v_uint64>(socket.get()),
+                   wholeMessage, tick - m_lastTick,
+                   m_messageCounter);
         m_lastTick = tick;
       }
     } else if(size > 0) {
@@ -204,13 +207,13 @@ public:
 
   Action onFinishListen() {
     ++ FINISHED_COUNTER;
-    OATPP_LOGD("Client", "Finished count=%d", FINISHED_COUNTER.load());
+    OATPP_LOGd("Client", "Finished count={}", FINISHED_COUNTER.load());
     return finish();
   }
 
   Action handleError(Error* error) override {
     if(error) {
-      OATPP_LOGD("Client", "Error. !!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!! %s", error->what());
+      OATPP_LOGd("Client", "Error. !!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!!---!!! {}", error->what());
     }
     return error;
   }
@@ -254,7 +257,7 @@ void FullAsyncTest::onRun() {
 
     /////////////////////////////////////////////////////////////////////////////////////
 
-    OATPP_LOGD("AAA", "waiting...");
+    OATPP_LOGd("AAA", "waiting...");
 
     while(true) {
       std::this_thread::sleep_for(std::chrono::milliseconds(200));

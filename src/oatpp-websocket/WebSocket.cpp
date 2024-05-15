@@ -25,6 +25,7 @@
 #include "WebSocket.hpp"
 
 #include "./Utils.hpp"
+#include "oatpp/base/Log.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
   #include <winsock2.h>
@@ -287,9 +288,9 @@ void WebSocket::listen() {
       handleFrame(frameHeader);
     } while(frameHeader.opcode != Frame::OPCODE_CLOSE && m_listening);
   } catch(const std::runtime_error& error) {
-    OATPP_LOGD("[oatpp::web::protocol::websocket::WebSocket::listen()]", "Unhandled error occurred. Message='%s'", error.what());
+    OATPP_LOGd("[oatpp::web::protocol::websocket::WebSocket::listen()]", "Unhandled error occurred. Message='{}'", error.what());
   } catch(...) {
-    OATPP_LOGD("[oatpp::web::protocol::websocket::WebSocket::listen()]", "Unhandled error occurred");
+    OATPP_LOGd("[oatpp::web::protocol::websocket::WebSocket::listen()]", "Unhandled error occurred");
   }
   
 }
